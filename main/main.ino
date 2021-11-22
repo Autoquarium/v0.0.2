@@ -4,12 +4,12 @@
 // TODO: change these with new names
 #include "menu.h"              /* cli and firsttime setup */
 #include "dfrobot-esp-ph.h"    /* pH sensor lib */
-#include "ir-sensor.h"       /* low food reading */
-#include "fish-servo.h"             /* moving servo */
+#include "ir-sensor.h"         /* low food reading */
+#include "fish-servo.h"        /* moving servo */
 #include "led-array.h"         /* led lighting control */ 
 #include "lcd.h"               /* LCD screen control */
 #include "fish-mqtt.h"         /* WiFi, MQTT, and Notifications */
-#include "temp-sensor.h"        /* water temp sensor lib */
+#include "temp-sensor.h"       /* water temp sensor lib */
 
 
 // semaphores for subscribed MQTT cmds - USE BINARY SEMAPHORES BECAUSE WE ARE TRIGGERING ANOTHER TASK TO RUN
