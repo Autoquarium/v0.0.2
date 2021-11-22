@@ -2,14 +2,14 @@
 #include <Preferences.h>
 
 // TODO: change these with new names
-#include "Menu.h"              /* cli and firsttime setup */
-#include "DFRobot_ESP_PH.h"    /* pH sensor lib */
-#include "ir_interface.cpp"    /* low food reading */
-#include "Servo_interface.h"   /* moving servo */
-#include "LED_Array.h"         /* led lighting control */ 
+#include "menu.h"              /* cli and firsttime setup */
+#include "dfrobot-esp-ph.h"    /* pH sensor lib */
+#include "ir-sensor.h"       /* low food reading */
+#include "fish-servo.h"             /* moving servo */
+#include "led-array.h"         /* led lighting control */ 
 #include "lcd.h"               /* LCD screen control */
-#include "fish_mqtt.h"         /* WiFi, MQTT, and Notifications */
-#include "tempSensor.h"        /* water temp sensor lib */
+#include "fish-mqtt.h"         /* WiFi, MQTT, and Notifications */
+#include "temp-sensor.h"        /* water temp sensor lib */
 
 
 // semaphores for subscribed MQTT cmds - USE BINARY SEMAPHORES BECAUSE WE ARE TRIGGERING ANOTHER TASK TO RUN
@@ -37,7 +37,7 @@ const int MIN_PH = 4;
 const float ESPADC = 4096.0;   //the esp Analog Digital Convertion value
 const int ESPVOLTAGE = 3300; //the esp voltage supply value
 const int PH_PIN = 35;    //pH sensor gpio pin
-DFRobot_ESP_PH ph;
+DFRobotESPpH ph;
 
 // LCD pins
 const int TFT_DC = 17;
@@ -53,7 +53,7 @@ TempSensor temperature;
 const int IR_PIN = 34; //TODO change to ESP pins
 const int LED_PIN = 26; //TODO change to ESP pins
 const int IR_THRESHOLD = 50; //TODO change to reflect values in enclosure
-ir_sensor ir;
+IRSensor ir;
 
 //Temperature chip
 int DS18S20_Pin = 4; //DS18S20 Signal pin on digital 2
@@ -62,11 +62,13 @@ int DS18S20_Pin = 4; //DS18S20 Signal pin on digital 2
 const int SERVO_PIN = 32;
 const int DELAY_BETWEEN_ROTATION = 1000;
 const int MIN_FEED_INTERVAL = 1200;
-Servo_Interface si;
+FishServo si;
 int previous_feed_time = -1;
 
 // LED array
-LED_Array leds;
+const int ledPin = 1;
+const int ledNum = 50;
+LEDArray leds;
 
 // MQTT, WiFi and notification
 FishMqtt wiqtt;
@@ -345,13 +347,13 @@ void setup() {
   temperature.init(DS18S20_Pin);  
 
   // init ir sensor
-  ir.init(IR_PIN, LED_PIN, IR_THRESHOLD);
+  ir.init(IR_PIN, IR_THRESHOLD);
 
   // init servo
   si.init(SERVO_PIN);
 
   // init LEDs
-  leds.init(200);
+  leds.init(ledPin, ledNum);
 
   // init LCD
   lcd.init(TFT_CS, TFT_DC, TFT_MOSI, TFT_CLK, TFT_RST, TFT_MISO);
