@@ -168,7 +168,16 @@ void feedCmdTask( void *pvParameters ) {
   for ( ;; ) {
     xSemaphoreTake(feed_semaphore, portMAX_DELAY);
     Serial.println("feed the fish");
-    // TODO: add code to move servo
+    // call servo function (once every 12 hours max)
+//      if((previous_feed_time == -1) || (getTimeDiff(getTime(), previous_feed_time) > MIN_FEED_INTERVAL)){
+//        for(int i = 0; i < num_of_fish; i++) {
+//          si.fullRotation(1000); // TODO: make this better
+//        }
+//        previous_feed_time = getTime();
+//      }
+//      else{
+//        Serial.println("Unable to feed, time interval too close.");
+//      }
   }
 }
 
@@ -176,8 +185,12 @@ void feedCmdTask( void *pvParameters ) {
 void ledCmdTask( void *pvParameters ) {
   for ( ;; ) {
     xSemaphoreTake(led_semaphore, portMAX_DELAY);
-    Serial.println("change led color/brightness");
-    // TODO: add code to change leds
+    Serial.println("change led color");
+//    Serial.println("change led color");   
+//      int r = atoi(strtok(buff, ","));
+//      int g = atoi(strtok(NULL, ","));
+//      int b = atoi(strtok(NULL, ","));
+//      leds.changeColor(r, g, b);
   }
 }
 
