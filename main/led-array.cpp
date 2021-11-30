@@ -84,6 +84,9 @@ void LEDArray::init(const int ledPinIn, int numLEDsIn) {
     setRGBColor(50, 50, 50);
 }
 
+void LEDArray::changeColor(int r, int g, int b) {
+    colorTransition(currentRGB, CRGB(r, g, b), 5000);
+}
 
 void LEDArray::updateDynamicColor(int currentTime) {
 

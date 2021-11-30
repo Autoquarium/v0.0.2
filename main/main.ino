@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include <Preferences.h>
+#include <time.h>
 
 // TODO: change these with new names
 #include "menu.h"              /* cli and firsttime setup */
@@ -25,6 +26,7 @@ SemaphoreHandle_t payload_mutex;
 long gmtOffset_sec;
 int num_of_fish;
 bool dynamic_lighting;
+bool auto_feed;
 bool send_alert;
 
 // Danger cutoof values
@@ -66,7 +68,7 @@ FishServo si;
 int previous_feed_time = -1;
 
 // LED array
-const int ledPin = 1;
+const int ledPin = 2;
 const int ledNum = 50;
 LEDArray leds;
 
@@ -83,17 +85,63 @@ void dangerValueCheck( float tempVal, float pHVal, int foodLevel );
 
 // task handlers
 TaskHandle_t dynamicLEDTask;
+TaskHandle_t autoFeedTask;
 
 
 // MAIN TASKS
+/**
+ * @brief Get the time hr:min
+ * 
+ * @return current time in format HHMM
+ */
+int getTime(){
+
+  String current_min;
+  String current_hour;
+  
+  struct tm timeinfo;
+  if(!getLocalTime(&timeinfo)){
+    Serial.println("Failed to obtain time");
+    return -1;
+  }
+  
+  current_hour = String(timeinfo.tm_hour);
+  if (timeinfo.tm_min < 10) {
+    current_min = String("0") + String(timeinfo.tm_min);
+  } else {
+    current_min = String(timeinfo.tm_min);
+  }
+  
+  current_hour = current_hour + current_min;
+
+  return current_hour.toInt();
+}
+
+/*
+ * @brief returns time1-time2 in hour,min format
+ * 
+ * @params time1, time2
+ */
+int getTimeDiff(int time1, int time2){
+  int diff = time1-time2;
+  int time2_adj;
+  if(diff < 0){
+    time2_adj = 2400 - time2;
+    diff = time1 + time2_adj;
+  }
+  //Serial.print("Time difference = ");
+  //Serial.println(diff);
+  return diff;
+}
+
 void keepWifiConnected( void * parameter ){
   // keep track of last wake
   portTickType xLastWakeTime;
-
+  
   // set delay period (50 seconds)
   portTickType xPeriod = ( 50000 / portTICK_RATE_MS );
   xLastWakeTime = xTaskGetTickCount ();
-  
+    
   for(;;){
     vTaskDelayUntil( &xLastWakeTime, xPeriod ); // run every 5 seconds
     Serial.println("checking wifi connection");
@@ -131,13 +179,21 @@ void publishSensorVals( void * parameter ) {
     Serial.println("Publishing new sensor values to broker");
 
     // get water Temp
-    float temp_read = 80.1;
+    // get water temperature
+    float temp_read = temperature.getTemp();
+    Serial.print("Temp sensor: ");
+    Serial.println(temp_read);
+    //float temp_read = 80.1;
 
     // get pH value
-    float pH_read = 7.65;
+    // get water pH
+    float pH_read = ph.getPH((temp_read-32)/1.8); //convert temperature to celcius
+    Serial.print("pH sensor: ");
+    Serial.println(pH_read);
+    //float pH_read = 7.65;
 
     // publish data
-    wiqtt.publishSensorVals(temp_read, pH_read, 900); // add time
+    wiqtt.publishSensorVals(temp_read, pH_read, getTime());
   }
 }
 
@@ -153,45 +209,71 @@ void dynamicLightingChange( void * parameter ) {
 
     Serial.println("Dynamic lighting change");
 
-    // getTime
-    // leds.updateDynamicColor(time)
+    leds.updateDynamicColor(getTime());
 
     vTaskDelayUntil( &xLastWakeTime, xPeriod );
     }
 
-
 }
 
 
-// CMD TASKS - these tasks are triggered inside the callback function
-// call servo function (once every 12 hours max)
-void feedCmdTask( void *pvParameters ) {
-  portTickType xLastFeedTime;
+/*
+ * @brief Autofeed fish task. Will be suspended until auto_feed is enabled by the user.
+ *        Checks every 10 minutes whether to feed the fish (12 hour feed interval).
+ * 
+ * @params time1, time2
+ */
+void autoFeedChange( void *pvParameters ) {
+  portTickType xLastWakeTime;
   // convert publish interval from minutes into ms
-  int delay_in_ms = MIN_FEED_INTERVAL * 60 * 1000; //720 minutes to ms
+  int delay_in_ms = 10 * 60 * 1000; //10 minutes to ms
   portTickType xPeriod = ( delay_in_ms / portTICK_RATE_MS );
-  xLastFeedTime = xTaskGetTickCount();
+  xLastWakeTime = xTaskGetTickCount();
   
   for ( ;; ) {
     xSemaphoreTake(feed_semaphore, portMAX_DELAY);
-    Serial.println("feed the fish");
-    for(int i = 0; i < num_of_fish; i++) {
-      si.fullRotation(1000); // TODO: make this better
+    Serial.println("Auto feed check");
+    if((previous_feed_time == -1) || (getTimeDiff(getTime(), previous_feed_time) > MIN_FEED_INTERVAL)){
+      for(int i = 0; i < num_of_fish; i++) {
+        si.fullRotation(1000); // TODO: make this better
+      }
+      previous_feed_time = getTime();
     }
-    vTaskDelayUntil( &xLastFeedTime, xPeriod );
+    else{
+      Serial.println("Unable to auto feed, time interval too close.");
+    }
+    vTaskDelayUntil( &xLastWakeTime, xPeriod );
   }
 }
 
 
+// CMD TASKS - these tasks are triggered inside the callback function
+// toggle feed (once every 12 hours max)
+void feedCmdTask( void *pvParameters){
+  for ( ;; ) {
+    xSemaphoreTake(feed_semaphore, portMAX_DELAY);
+    Serial.println("Feed button pressed");
+    if((previous_feed_time == -1) || (getTimeDiff(getTime(), previous_feed_time) > MIN_FEED_INTERVAL)){
+      for(int i = 0; i < num_of_fish; i++) {
+        si.fullRotation(1000); // TODO: calibrate this for flaky fish food
+      }
+      previous_feed_time = getTime();
+    }
+    else{
+      Serial.println("Unable to feed, time interval too close.");
+    }
+  }
+}
+
 void ledCmdTask( void *pvParameters ) {
   for ( ;; ) {
     xSemaphoreTake(led_semaphore, portMAX_DELAY);
-    Serial.println("change led color");
-//    Serial.println("change led color");   
-//      int r = atoi(strtok(buff, ","));
-//      int g = atoi(strtok(NULL, ","));
-//      int b = atoi(strtok(NULL, ","));
-//      leds.changeColor(r, g, b);
+    Serial.println("change led color");  
+    //TODO: Update this
+     // int r = atoi(strtok(CMD_PAYLOAD, ","));
+     // int g = atoi(strtok(NULL, ","));
+     // int b = atoi(strtok(NULL, ","));
+     // leds.changeColor(r, g, b);
   }
 }
 
@@ -212,6 +294,7 @@ void settingCmdTask( void *pvParameters ) {
       publish_interval = preferences.getInt("publish_interval", 2);
       num_of_fish = preferences.getInt("num_of_fish", 3);
       dynamic_lighting = preferences.getBool("dynamic_lighting", false);
+      auto_feed = preferences.getBool("auto_feed", false);
       send_alert = preferences.getBool("send_alert", false);
       preferences.end();
     */
@@ -333,10 +416,24 @@ void taskCreation() {
     1
     );
 
+  xTaskCreatePinnedToCore(
+    autoFeedChange,
+    "auto feeds fish",
+    10000,
+    NULL,
+    1, // not time sensitive
+    &autoFeedTask,
+    1
+    );
 
   // suspend the dynamic lighting task until dynamic lighting is enabled by the user
   if (!dynamic_lighting) {
     vTaskSuspend(dynamicLEDTask);
+  }
+
+  // suspend the auto feed task until auto feed is enabled by the user
+  if (!auto_feed) {
+    vTaskSuspend(autoFeedTask);
   }
 }
 
@@ -380,6 +477,9 @@ void setup() {
   wiqtt.setupMQTT();
   wiqtt.setCallback(callback); 
 
+  // Setup clock
+  configTime(gmtOffset_sec, 0/*daylightOffset_sec*/, "pool.ntp.org"); //TODO: figure out daylight offset?
+
   // create tasks
   Serial.println("Creating Tasks");
   taskCreation();
@@ -407,10 +507,11 @@ void load_settings() {
   // recover saved timezone value
   gmtOffset_sec = preferences.getInt("time_zone", -5)*60*60;
   
-  // recvoer saved setting
+  // recover saved setting
   publish_interval = preferences.getInt("publish_interval", 2);
   num_of_fish = preferences.getInt("num_of_fish", 3);
   dynamic_lighting = preferences.getBool("dynamic_lighting", false);
+  auto_feed = preferences.getBool("auto_feed", false);
   send_alert = preferences.getBool("send_alert", false);
   
   preferences.end();
