@@ -61,7 +61,7 @@ int DS18S20_Pin = 4; //DS18S20 Signal pin on digital 2
 // servo
 const int SERVO_PIN = 32;
 const int DELAY_BETWEEN_ROTATION = 1000;
-const int MIN_FEED_INTERVAL = 1200;
+const int MIN_FEED_INTERVAL = 720; //12 hours
 FishServo si;
 int previous_feed_time = -1;
 
@@ -147,7 +147,7 @@ void dynamicLightingChange( void * parameter ) {
   
   int delay_in_ms = 10* 60 * 1000; // 10 minutes to ms
   portTickType xPeriod = ( delay_in_ms / portTICK_RATE_MS );
-  xLastWakeTime = xTaskGetTickCount ();
+  xLastWakeTime = xTaskGetTickCount();
 
   for( ;; ) {
 
@@ -164,20 +164,21 @@ void dynamicLightingChange( void * parameter ) {
 
 
 // CMD TASKS - these tasks are triggered inside the callback function
+// call servo function (once every 12 hours max)
 void feedCmdTask( void *pvParameters ) {
+  portTickType xLastFeedTime;
+  // convert publish interval from minutes into ms
+  int delay_in_ms = MIN_FEED_INTERVAL * 60 * 1000; //720 minutes to ms
+  portTickType xPeriod = ( delay_in_ms / portTICK_RATE_MS );
+  xLastFeedTime = xTaskGetTickCount();
+  
   for ( ;; ) {
     xSemaphoreTake(feed_semaphore, portMAX_DELAY);
     Serial.println("feed the fish");
-    // call servo function (once every 12 hours max)
-//      if((previous_feed_time == -1) || (getTimeDiff(getTime(), previous_feed_time) > MIN_FEED_INTERVAL)){
-//        for(int i = 0; i < num_of_fish; i++) {
-//          si.fullRotation(1000); // TODO: make this better
-//        }
-//        previous_feed_time = getTime();
-//      }
-//      else{
-//        Serial.println("Unable to feed, time interval too close.");
-//      }
+    for(int i = 0; i < num_of_fish; i++) {
+      si.fullRotation(1000); // TODO: make this better
+    }
+    vTaskDelayUntil( &xLastFeedTime, xPeriod );
   }
 }
 
