@@ -62,7 +62,7 @@ IRSensor ir;
 //Temperature chip
 int DS18S20_Pin = 4; //DS18S20 Signal pin on digital 2
 
-// servo
+// servo/feed
 const int SERVO_PIN = 32;
 const int DELAY_BETWEEN_ROTATION = 1000;
 const int MIN_FEED_INTERVAL = 720; //12 hours
@@ -90,9 +90,79 @@ TaskHandle_t dynamicLEDTask;
 TaskHandle_t autoFeedTask;
 
 
-// MAIN TASKS
+
+//******************
+// HELPER FUNCTIONS
+//******************
+
+void load_settings() {
+
+  Preferences preferences;
+  // recover saved wifi password
+  preferences.begin("saved-values", false);
+  String wifi_SSID = preferences.getString("wifi_SSID", "no value"); 
+  String wifi_PWD = preferences.getString("wifi_PWD", "no value");
+  wiqtt.setWifiCreds(wifi_SSID, wifi_PWD);
+
+  // recover saved Alert username
+  String alert_usr = preferences.getString("alert_usr", "no value");
+  wiqtt.setAlertCreds(alert_usr);
+
+  // recover saved timezone value
+  gmtOffset_sec = preferences.getInt("time_zone", -5)*60*60;
+  
+  // recover saved setting
+  publish_interval = preferences.getInt("publish_interval", 2);
+  num_of_fish = preferences.getInt("num_of_fish", 3);
+  dynamic_lighting = preferences.getBool("dynamic_lighting", false);
+  auto_feed = preferences.getBool("auto_feed", false);
+  send_alert = preferences.getBool("send_alert", false);
+  
+  preferences.end();
+}
+
+
+void userSetup() {
+  Serial.setTimeout(500);
+  Menu me;
+  me.loop();
+}
+
+
+void dangerValueCheck(float tempVal, float pHVal, int foodLevel ) {
+
+    String msg;
+
+    // water tempurature value check
+    if (tempVal >= MAX_TEMP) {
+        msg = "High water temperature detected. Measured value: " + String(tempVal) + " deg-F";
+        wiqtt.sendPushAlert(msg);
+    }
+    else if (tempVal <= MIN_TEMP) {
+        msg = "Low water temperature detected. Measured value: " + String(tempVal) + " deg-F";
+        wiqtt.sendPushAlert(msg);
+    }
+    
+    // pH value check
+    if (pHVal >= MAX_PH) {
+        msg = "High water pH detected. Measured value: " + String(pHVal);
+        wiqtt.sendPushAlert(msg);
+    }
+    else if (pHVal <= MIN_PH) {
+        msg = "Low water pH detected. Measured value: " + String(pHVal);
+        wiqtt.sendPushAlert(msg);
+    }
+    
+    // food level check
+    if (foodLevel == 0) {
+        msg = "Low food level detected, refill food hopper";
+        wiqtt.sendPushAlert(msg);
+    }
+    return;
+}
+
 /**
- * @brief Get the time hr:min
+ * @brief Get the current time hr:min
  * 
  * @return current time in format HHMM
  */
@@ -115,7 +185,6 @@ int getTime(){
   }
   
   current_hour = current_hour + current_min;
-
   return current_hour.toInt();
 }
 
@@ -135,6 +204,11 @@ int getTimeDiff(int time1, int time2){
   //Serial.println(diff);
   return diff;
 }
+
+
+// ************
+// MAIN TASKS
+// ************
 
 void keepWifiConnected( void * parameter ){
   // keep track of last wake
@@ -180,19 +254,16 @@ void publishSensorVals( void * parameter ) {
     vTaskDelayUntil( &xLastWakeTime, xPeriod );
     Serial.println("Publishing new sensor values to broker");
 
-    // get water Temp
+
     // get water temperature
     float temp_read = temperature.getTemp();
     Serial.print("Temp sensor: ");
     Serial.println(temp_read);
-    //float temp_read = 80.1;
 
-    // get pH value
     // get water pH
     float pH_read = ph.getPH((temp_read-32)/1.8); //convert temperature to celcius
     Serial.print("pH sensor: ");
     Serial.println(pH_read);
-    //float pH_read = 7.65;
 
     // publish data
     wiqtt.publishSensorVals(temp_read, pH_read, getTime());
@@ -233,7 +304,6 @@ void autoFeedChange( void *pvParameters ) {
   xLastWakeTime = xTaskGetTickCount();
   
   for ( ;; ) {
-    xSemaphoreTake(feed_semaphore, portMAX_DELAY);
     Serial.println("Auto feed check");
     if((previous_feed_time == -1) || (getTimeDiff(getTime(), previous_feed_time) > MIN_FEED_INTERVAL)){
       for(int i = 0; i < num_of_fish; i++) {
@@ -250,8 +320,11 @@ void autoFeedChange( void *pvParameters ) {
 }
 
 
-// CMD TASKS - these tasks are triggered inside the callback function
-// toggle feed (once every 12 hours max)
+// *************************
+// CMD TASKS
+// (triggered in callback)
+// **************************
+
 void feedCmdTask( void *pvParameters){
   for ( ;; ) {
     xSemaphoreTake(feed_semaphore, portMAX_DELAY);
@@ -272,15 +345,22 @@ void ledCmdTask( void *pvParameters ) {
   for ( ;; ) {
     xSemaphoreTake(led_semaphore, portMAX_DELAY);
     Serial.println("change led color");  
-    //TODO: Update this
-     // int r = atoi(strtok(CMD_PAYLOAD, ","));
-     // int g = atoi(strtok(NULL, ","));
-     // int b = atoi(strtok(NULL, ","));
-     // leds.changeColor(r, g, b);
+    
+    //transition to new color
+    int r = atoi(strtok(CMD_PAYLOAD, ","));
+    int g = atoi(strtok(NULL, ","));
+    int b = atoi(strtok(NULL, ","));
+    leds.changeColor(r, g, b);
   }
 }
 
 
+
+
+// *************************
+// AUTO TASKS
+// (run automatically)
+// **************************
 void settingCmdTaskAutofeed( void *pvParameters ) {
   for ( ;; ) {
     xSemaphoreTake(autofeed_semaphore, portMAX_DELAY);
@@ -296,11 +376,11 @@ void settingCmdTaskAutofeed( void *pvParameters ) {
     }
     
     // save updated values to non-volitile memory
+    Preferences preferences;
     preferences.begin("saved-values", false);
     preferences.putBool("auto_feed", auto_feed);
   }
 }
-
 
 void settingCmdTaskAutoled( void *pvParameters ) {
   for ( ;; ) {
@@ -317,6 +397,7 @@ void settingCmdTaskAutoled( void *pvParameters ) {
     }
     
     // save updated values to non-volitile memory
+    Preferences preferences;
     preferences.begin("saved-values", false);
     preferences.putBool("dynamic_lighting", dynamic_lighting);
   }
@@ -481,7 +562,8 @@ void setup() {
   // create semaphores and mutex
   feed_semaphore = xSemaphoreCreateBinary();
   led_semaphore = xSemaphoreCreateBinary();
-  setting_semaphore = xSemaphoreCreateBinary();
+  autoled_semaphore = xSemaphoreCreateBinary();
+  autofeed_semaphore = xSemaphoreCreateBinary();
   payload_mutex = xSemaphoreCreateMutex();
 
   load_settings();
@@ -522,75 +604,4 @@ void setup() {
   taskCreation();
 }
 
-
-void loop() {
-  
-}
-
-
-void load_settings() {
-
-  Preferences preferences;
-  // recover saved wifi password
-  preferences.begin("saved-values", false);
-  String wifi_SSID = preferences.getString("wifi_SSID", "no value"); 
-  String wifi_PWD = preferences.getString("wifi_PWD", "no value");
-  wiqtt.setWifiCreds(wifi_SSID, wifi_PWD);
-
-  // recover saved Alert username
-  String alert_usr = preferences.getString("alert_usr", "no value");
-  wiqtt.setAlertCreds(alert_usr);
-
-  // recover saved timezone value
-  gmtOffset_sec = preferences.getInt("time_zone", -5)*60*60;
-  
-  // recover saved setting
-  publish_interval = preferences.getInt("publish_interval", 2);
-  num_of_fish = preferences.getInt("num_of_fish", 3);
-  dynamic_lighting = preferences.getBool("dynamic_lighting", false);
-  auto_feed = preferences.getBool("auto_feed", false);
-  send_alert = preferences.getBool("send_alert", false);
-  
-  preferences.end();
-}
-
-
-void userSetup() {
-  Serial.setTimeout(500);
-  Menu me;
-  me.loop();
-  //Serial.setTimeout(); // back to default value 
-}
-
-
-void dangerValueCheck(float tempVal, float pHVal, int foodLevel ) {
-
-    String msg;
-
-    // water tempurature value check
-    if (tempVal >= MAX_TEMP) {
-        msg = "High water temperature detected. Measured value: " + String(tempVal) + " deg-F";
-        wiqtt.sendPushAlert(msg);
-    }
-    else if (tempVal <= MIN_TEMP) {
-        msg = "Low water temperature detected. Measured value: " + String(tempVal) + " deg-F";
-        wiqtt.sendPushAlert(msg);
-    }
-    
-    // pH value check
-    if (pHVal >= MAX_PH) {
-        msg = "High water pH detected. Measured value: " + String(pHVal);
-        wiqtt.sendPushAlert(msg);
-    }
-    else if (pHVal <= MIN_PH) {
-        msg = "Low water pH detected. Measured value: " + String(pHVal);
-        wiqtt.sendPushAlert(msg);
-    }
-    
-    // food level check
-    if (foodLevel == 0) {
-        msg = "Low food level detected, refill food hopper";
-        wiqtt.sendPushAlert(msg);
-    }
-    return;
-}
+void loop() { }
