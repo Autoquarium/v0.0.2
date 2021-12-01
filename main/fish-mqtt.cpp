@@ -5,6 +5,10 @@
 #include "fish-mqtt.h"
 
 
+void FishMqtt::setDeviceId(string device_id_in) {
+    device_id = device_id_in;
+}
+
 void FishMqtt::setWifiCreds(String SSID_in, String PWD_in) {
 
     if (SSID_in.length() <= 40 && PWD_in.length() <= 40) {
@@ -77,6 +81,7 @@ void FishMqtt::publishSensorVals(float tempVal, float pHVal, int time) {
     doc["pH_val"] = pHVal;
     doc["temp_val"] = tempVal;
     doc["time"] = time;
+    doc["device_id"] = device_id;
     String output;
     serializeJson(doc, output);
 
