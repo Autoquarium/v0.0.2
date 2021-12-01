@@ -13,6 +13,10 @@
 #include "temp-sensor.h"       /* water temp sensor lib */
 
 
+// FOR TESTING: change device ID if you're working on the non-production device
+String device_id = "autoq-prod"; 
+
+
 // semaphores for subscribed MQTT cmds - USE BINARY SEMAPHORES BECAUSE WE ARE TRIGGERING ANOTHER TASK TO RUN
 SemaphoreHandle_t feed_semaphore;
 SemaphoreHandle_t led_semaphore;
@@ -274,19 +278,15 @@ void publishSensorVals( void * parameter ) {
 void dynamicLightingChange( void * parameter ) {
   portTickType xLastWakeTime;
   
-  int delay_in_ms = 10* 60 * 1000; // 10 minutes to ms
+  int delay_in_ms = 1* 60 * 1000; // 10 minutes to ms //CHANGED TO 1 minute for testing
   portTickType xPeriod = ( delay_in_ms / portTICK_RATE_MS );
   xLastWakeTime = xTaskGetTickCount();
 
   for( ;; ) {
-
-    Serial.println("Dynamic lighting change");
-
-    leds.updateDynamicColor(getTime());
-
     vTaskDelayUntil( &xLastWakeTime, xPeriod );
+    Serial.println("Dynamic lighting change");
+    leds.updateDynamicColor(getTime());
     }
-
 }
 
 
@@ -594,7 +594,8 @@ void setup() {
   // init wifi and MQTT
   wiqtt.connectToWifi();
   wiqtt.setupMQTT();
-  wiqtt.setCallback(callback); 
+  wiqtt.setCallback(callback);
+  wiqtt.setDeviceId(device_id);
 
   // Setup clock
   configTime(gmtOffset_sec, 0/*daylightOffset_sec*/, "pool.ntp.org"); //TODO: figure out daylight offset?
