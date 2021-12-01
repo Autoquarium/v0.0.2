@@ -32,7 +32,7 @@ long gmtOffset_sec;
 int num_of_fish;
 bool dynamic_lighting;
 bool auto_feed;
-bool send_alert;
+bool send_alert = false;
 
 // Danger cutoof values
 const int MAX_TEMP  = 90;
@@ -119,7 +119,11 @@ void load_settings() {
   num_of_fish = preferences.getInt("num_of_fish", 3);
   dynamic_lighting = preferences.getBool("dynamic_lighting", false);
   auto_feed = preferences.getBool("auto_feed", false);
-  send_alert = preferences.getBool("send_alert", false);
+  
+  // enable notifications only if alert credential value has been configured
+  if (alert_usr != "no value") {
+    send_alert = true;
+  }
   
   preferences.end();
 }
