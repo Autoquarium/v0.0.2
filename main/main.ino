@@ -16,7 +16,9 @@
 // semaphores for subscribed MQTT cmds - USE BINARY SEMAPHORES BECAUSE WE ARE TRIGGERING ANOTHER TASK TO RUN
 SemaphoreHandle_t feed_semaphore;
 SemaphoreHandle_t led_semaphore;
-SemaphoreHandle_t setting_semaphore;
+SemaphoreHandle_t autoled_semaphore;
+SemaphoreHandle_t autofeed_semaphore;
+
 
 // mutex for CMD_PAYLOAD - USE MUTEX BECAUSE ITS A SHARED RESOURCE:
 // https://stackoverflow.com/questions/62814/difference-between-binary-semaphore-and-mutex
@@ -241,6 +243,7 @@ void autoFeedChange( void *pvParameters ) {
     }
     else{
       Serial.println("Unable to auto feed, time interval too close.");
+      // TODO: maybe send an alert to the user?
     }
     vTaskDelayUntil( &xLastWakeTime, xPeriod );
   }
@@ -278,26 +281,44 @@ void ledCmdTask( void *pvParameters ) {
 }
 
 
-void settingCmdTask( void *pvParameters ) {
+void settingCmdTaskAutofeed( void *pvParameters ) {
   for ( ;; ) {
-    xSemaphoreTake(setting_semaphore, portMAX_DELAY);
-    Serial.println("change application settings");
-    // TODO: add code to change settings
+    xSemaphoreTake(autofeed_semaphore, portMAX_DELAY);
+    
+    if (!strcmp(CMD_PAYLOAD, "false")) {
+      Serial.println("autofeed disabled");
+      vTaskSuspend( autoFeedTask );
+      auto_feed = false;
+    } else {
+      Serial.println("autofeed enabled");
+      vTaskResume( autoFeedTask );
+      auto_feed = true;
+    }
+    
+    // save updated values to non-volitile memory
+    preferences.begin("saved-values", false);
+    preferences.putBool("auto_feed", auto_feed);
+  }
+}
 
 
-    // if enable dynamic lighting:
-    // vTaskResume( dynamicLEDTask )
-
-    // Save new setting values back to memory
-    /*
-      preferences.begin("saved-values", false);
-      publish_interval = preferences.getInt("publish_interval", 2);
-      num_of_fish = preferences.getInt("num_of_fish", 3);
-      dynamic_lighting = preferences.getBool("dynamic_lighting", false);
-      auto_feed = preferences.getBool("auto_feed", false);
-      send_alert = preferences.getBool("send_alert", false);
-      preferences.end();
-    */
+void settingCmdTaskAutoled( void *pvParameters ) {
+  for ( ;; ) {
+    xSemaphoreTake(autoled_semaphore, portMAX_DELAY);
+    
+    if (!strcmp(CMD_PAYLOAD, "false")) {
+      Serial.println("dynamic LED disabled");
+      vTaskSuspend( dynamicLEDTask );
+      dynamic_lighting = false;
+    } else {
+      Serial.println("dynamic LED enabled");
+      vTaskResume( dynamicLEDTask );
+      dynamic_lighting = true;
+    }
+    
+    // save updated values to non-volitile memory
+    preferences.begin("saved-values", false);
+    preferences.putBool("dynamic_lighting", dynamic_lighting);
   }
 }
 
@@ -333,8 +354,14 @@ void callback(char* topic, byte* payload, unsigned int length) {
     }
 
     // SETTING CHANGES
-    else if (!strcmp(topic, "autoq/cmds/settings")) {
-      xSemaphoreGive(setting_semaphore); 
+    // dynamic lighting
+    else if (!strcmp(topic, "autoq/cmds/settings/autoled")) {
+      xSemaphoreGive(autoled_semaphore); 
+    }
+  
+    // autofeed
+    else if (!strcmp(topic, "autoq/cmds/settings/autofeed")) {
+      xSemaphoreGive(autofeed_semaphore); 
     }
     
     else {
@@ -397,8 +424,18 @@ void taskCreation() {
     );                             
 
   xTaskCreatePinnedToCore(
-    settingCmdTask,
-    "changes settings",
+    settingCmdTaskAutofeed,
+    "changes autofeed settings",
+    10000,
+    NULL,
+    1, // not time sensitive
+    NULL,
+    1
+    );
+  
+  xTaskCreatePinnedToCore(
+    settingCmdTaskAutoled,
+    "changes dynamic ligting settings",
     10000,
     NULL,
     1, // not time sensitive
