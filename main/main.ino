@@ -2,7 +2,6 @@
 #include <Preferences.h>
 #include <time.h>
 
-// TODO: change these with new names
 #include "menu.h"              /* cli and firsttime setup */
 #include "dfrobot-esp-ph.h"    /* pH sensor lib */
 #include "ir-sensor.h"         /* low food reading */
@@ -283,7 +282,7 @@ void dynamicLightingChange( void * parameter ) {
   xLastWakeTime = xTaskGetTickCount();
 
   for( ;; ) {
-    vTaskDelayUntil( &xLastWakeTime, xPeriod );
+    vTaskDelay(xPeriod );
     Serial.println("Dynamic lighting change");
     leds.updateDynamicColor(getTime());
     }
@@ -425,23 +424,24 @@ void callback(char* topic, byte* payload, unsigned int length) {
     xSemaphoreGive(payload_mutex);
     
     // FEEDING CMDS
-    if (!strcmp(topic, "autoq/cmds/feed")) {
+    String topic_str = String(topic);
+    if (topic_str == device_id + "/cmds/feed") {
       xSemaphoreGive(feed_semaphore);
     }
 
     // LIGHTING CMDS
-    else if (!strcmp(topic, "autoq/cmds/leds")) {
+    else if (topic_str == device_id + "/cmds/leds") {
       xSemaphoreGive(led_semaphore);
     }
 
     // SETTING CHANGES
     // dynamic lighting
-    else if (!strcmp(topic, "autoq/cmds/settings/autoled")) {
+    else if (topic_str == device_id + "/cmds/settings/autoled") {
       xSemaphoreGive(autoled_semaphore); 
     }
   
     // autofeed
-    else if (!strcmp(topic, "autoq/cmds/settings/autofeed")) {
+    else if (topic_str == device_id + "/cmds/settings/autofeed") {
       xSemaphoreGive(autofeed_semaphore); 
     }
     
@@ -592,10 +592,11 @@ void setup() {
   userSetup();
 
   // init wifi and MQTT
+  wiqtt.setDeviceId(device_id);
   wiqtt.connectToWifi();
   wiqtt.setupMQTT();
   wiqtt.setCallback(callback);
-  wiqtt.setDeviceId(device_id);
+
 
   // Setup clock
   configTime(gmtOffset_sec, 0/*daylightOffset_sec*/, "pool.ntp.org"); //TODO: figure out daylight offset?

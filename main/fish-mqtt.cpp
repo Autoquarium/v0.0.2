@@ -5,7 +5,7 @@
 #include "fish-mqtt.h"
 
 
-void FishMqtt::setDeviceId(string device_id_in) {
+void FishMqtt::setDeviceId(String device_id_in) {
     device_id = device_id_in;
 }
 
@@ -47,8 +47,12 @@ void FishMqtt::MQTTreconnect() {
         if (connect(clientName, usrname, password)) {
             Serial.println("Connected to broker.");
             // subscribe to topic
-            subscribe("autoq/cmds/#"); //subscribes to all the commands messages triggered by the user
-            Serial.println("Subscribed to topic: commands");
+            String topic_str = device_id + "/cmds/#";
+            char topic_c[40];
+            topic_str.toCharArray(topic_c, topic_str.length() + 1);
+            subscribe(topic_c); //subscribes to all the commands messages triggered by the user
+            Serial.println("Subscribed to topic: ");
+            Serial.println(topic_c);
             return;
         }
         if(WiFi.status() != WL_CONNECTED) {
