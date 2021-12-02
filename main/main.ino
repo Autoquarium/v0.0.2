@@ -2,7 +2,6 @@
 #include <Preferences.h>
 #include <time.h>
 
-// TODO: change these with new names
 #include "menu.h"              /* cli and firsttime setup */
 #include "dfrobot-esp-ph.h"    /* pH sensor lib */
 #include "ir-sensor.h"         /* low food reading */
@@ -11,6 +10,10 @@
 #include "lcd.h"               /* LCD screen control */
 #include "fish-mqtt.h"         /* WiFi, MQTT, and Notifications */
 #include "temp-sensor.h"       /* water temp sensor lib */
+
+
+// FOR TESTING: change device ID if you're working on the non-production device
+String device_id = "autoq-prod"; 
 
 
 // semaphores for subscribed MQTT cmds - USE BINARY SEMAPHORES BECAUSE WE ARE TRIGGERING ANOTHER TASK TO RUN
@@ -29,7 +32,7 @@ long gmtOffset_sec;
 int num_of_fish;
 bool dynamic_lighting;
 bool auto_feed;
-bool send_alert;
+bool send_alert = false;
 
 // Danger cutoof values
 const int MAX_TEMP  = 90;
@@ -116,7 +119,11 @@ void load_settings() {
   num_of_fish = preferences.getInt("num_of_fish", 3);
   dynamic_lighting = preferences.getBool("dynamic_lighting", false);
   auto_feed = preferences.getBool("auto_feed", false);
-  send_alert = preferences.getBool("send_alert", false);
+  
+  // enable notifications only if alert credential value has been configured
+  if (alert_usr != "no value") {
+    send_alert = true;
+  }
   
   preferences.end();
 }
@@ -274,19 +281,15 @@ void publishSensorVals( void * parameter ) {
 void dynamicLightingChange( void * parameter ) {
   portTickType xLastWakeTime;
   
-  int delay_in_ms = 10* 60 * 1000; // 10 minutes to ms
+  int delay_in_ms = 1* 60 * 1000; // 10 minutes to ms //CHANGED TO 1 minute for testing
   portTickType xPeriod = ( delay_in_ms / portTICK_RATE_MS );
   xLastWakeTime = xTaskGetTickCount();
 
   for( ;; ) {
-
+    vTaskDelay(xPeriod );
     Serial.println("Dynamic lighting change");
-
     leds.updateDynamicColor(getTime());
-
-    vTaskDelayUntil( &xLastWakeTime, xPeriod );
     }
-
 }
 
 
@@ -425,23 +428,24 @@ void callback(char* topic, byte* payload, unsigned int length) {
     xSemaphoreGive(payload_mutex);
     
     // FEEDING CMDS
-    if (!strcmp(topic, "autoq/cmds/feed")) {
+    String topic_str = String(topic);
+    if (topic_str == device_id + "/cmds/feed") {
       xSemaphoreGive(feed_semaphore);
     }
 
     // LIGHTING CMDS
-    else if (!strcmp(topic, "autoq/cmds/leds")) {
+    else if (topic_str == device_id + "/cmds/leds") {
       xSemaphoreGive(led_semaphore);
     }
 
     // SETTING CHANGES
     // dynamic lighting
-    else if (!strcmp(topic, "autoq/cmds/settings/autoled")) {
+    else if (topic_str == device_id + "/cmds/settings/autoled") {
       xSemaphoreGive(autoled_semaphore); 
     }
   
     // autofeed
-    else if (!strcmp(topic, "autoq/cmds/settings/autofeed")) {
+    else if (topic_str == device_id + "/cmds/settings/autofeed") {
       xSemaphoreGive(autofeed_semaphore); 
     }
     
@@ -592,9 +596,11 @@ void setup() {
   userSetup();
 
   // init wifi and MQTT
+  wiqtt.setDeviceId(device_id);
   wiqtt.connectToWifi();
   wiqtt.setupMQTT();
-  wiqtt.setCallback(callback); 
+  wiqtt.setCallback(callback);
+
 
   // Setup clock
   configTime(gmtOffset_sec, 0/*daylightOffset_sec*/, "pool.ntp.org"); //TODO: figure out daylight offset?

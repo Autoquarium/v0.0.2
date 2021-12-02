@@ -14,6 +14,11 @@
 
 class FishMqtt : public PubSubClient {
 	private:
+
+
+		// device info
+		String device_id = "autoq-prod"; // default device
+
 		// MQTT broker info
 		char *mqttServer =  "e948e5ec3f1b48708ce7748bdabab96e.s1.eu.hivemq.cloud";
 		int mqttPort = 8883;
@@ -43,6 +48,14 @@ class FishMqtt : public PubSubClient {
 		 * 
 		 */
 		FishMqtt() : PubSubClient(espClient) {}
+
+
+		/**
+		 * @brief Set the Device Id to be sent in the published message
+		 * 
+		 * @param device_id_in the device id to be set
+		 */
+		void setDeviceId(String device_id_in);
 
 
 		/**
