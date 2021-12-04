@@ -47,12 +47,22 @@ const int PH_PIN = 35;    //pH sensor gpio pin
 DFRobotESPpH ph;
 
 // LCD pins
+/*
+old pins
 const int TFT_DC = 17;
 const int TFT_CS = 15;
 const int TFT_RST = 5;
 const int TFT_MISO = 19;         
 const int TFT_MOSI = 23;           
-const int TFT_CLK = 18; 
+const int TFT_CLK = 18;
+*/
+const int TFT_CS = 23;
+const int TFT_RST = 22;
+const int TFT_DC = 21;
+const int TFT_MOSI = 19;           
+const int TFT_CLK = 18;
+const int TFT_MISO = 5; 
+
 LCD lcd;
 TempSensor temperature;
 
