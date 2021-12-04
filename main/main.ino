@@ -304,21 +304,21 @@ void autoFeedChange( void *pvParameters ) {
   // convert publish interval from minutes into ms
   int delay_in_ms = 10 * 60 * 1000; //10 minutes to ms
   portTickType xPeriod = ( delay_in_ms / portTICK_RATE_MS );
-  xLastWakeTime = xTaskGetTickCount();
   
   for ( ;; ) {
     Serial.println("Auto feed check");
-    if((previous_feed_time == -1) || (getTimeDiff(getTime(), previous_feed_time) > MIN_FEED_INTERVAL)){
+    if((previous_feed_time == -1) || (getTimeDiff(getTime(), previous_feed_time) >= MIN_FEED_INTERVAL)){
       for(int i = 0; i < num_of_fish; i++) {
-        si.fullRotation(1000); // TODO: make this better
+        si.fullRotation(1000);
       }
+      wiqtt.sendPushAlert("Fish have been fed!");
       previous_feed_time = getTime();
     }
     else{
       Serial.println("Unable to auto feed, time interval too close.");
       // TODO: maybe send an alert to the user?
     }
-    vTaskDelayUntil( &xLastWakeTime, xPeriod );
+    vTaskDelay( xPeriod );
   }
 }
 
@@ -337,9 +337,11 @@ void feedCmdTask( void *pvParameters){
         si.fullRotation(1000); // TODO: calibrate this for flaky fish food
       }
       previous_feed_time = getTime();
+      wiqtt.sendPushAlert("Fish have been fed!");
     }
     else{
       Serial.println("Unable to feed, time interval too close.");
+      wiqtt.sendPushAlert("Unable to feed, you already fed your fish today");
     }
   }
 }
