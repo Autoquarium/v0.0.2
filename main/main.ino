@@ -126,7 +126,7 @@ void load_settings() {
   
   // recover saved setting
   publish_interval = preferences.getInt("publish_interval", 2);
-  num_of_fish = preferences.getInt("num_of_fish", 3);
+  num_of_fish = preferences.getInt("num_of_fish", 1);
   dynamic_lighting = preferences.getBool("dynamic_lighting", false);
   auto_feed = preferences.getBool("auto_feed", false);
   
