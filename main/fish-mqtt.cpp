@@ -110,6 +110,13 @@ void FishMqtt::publishFoodLevel(bool foodLevel) {
     // publish the data to the broker
     if (!connected()) MQTTreconnect();
     publish("autoq/sensor/feed", output.c_str()); //need to convert to c_string
+    
+    
+    if (!foodLevel) {
+        sendPushAlert("Fish Food Level is Low!");
+    } else {
+        sendPushAlert("Fish have been fed");
+    }
 
 }
 

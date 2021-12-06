@@ -80,7 +80,7 @@ const int SERVO_PIN = 33;
 const int DELAY_BETWEEN_ROTATION = 1000;
 const int MIN_FEED_INTERVAL = 0; //12 hours
 FishServo si;
-int previous_feed_time = -1;
+int previous_feed_time;
 
 // LED array
 const int ledPin = 2;
@@ -121,7 +121,8 @@ void load_settings() {
   String alert_usr = preferences.getString("alert_usr", "no value");
   wiqtt.setAlertCreds(alert_usr);
 
-  // recover saved timezone value
+  // recover saved time values
+  previous_feed_time = preferences.getInt("previous_feed_time", -1);
   gmtOffset_sec = preferences.getInt("time_zone", -5)*60*60;
   
   // recover saved setting
@@ -321,12 +322,19 @@ void autoFeedChange( void *pvParameters ) {
       for(int i = 0; i < num_of_fish; i++) {
         si.fullRotation(1000);
       }
-      wiqtt.sendPushAlert("Fish have been fed!");
+
+      bool food_level = ir.getFoodLevel() == 1;
+      wiqtt.publishFoodLevel(food_level);
+
       previous_feed_time = getTime();
+      Preferences preferences;
+      preferences.begin("saved-values", false);
+      preferences.putInt("previous_feed_time", previous_feed_time);
+      preferences.end();
+
     }
     else{
       Serial.println("Unable to auto feed, time interval too close.");
-      // TODO: maybe send an alert to the user?
     }
     vTaskDelay( xPeriod );
   }
@@ -350,23 +358,22 @@ void feedCmdTask( void *pvParameters){
       for(int i = 0; i < num_of_fish; i++) {
         si.fullRotation(1000); // TODO: calibrate this for flaky fish food
       }
-      previous_feed_time = getTime();
-      wiqtt.sendPushAlert("Fish have been fed!");
       
       // update dashboard food levels
       bool food_level = ir.getFoodLevel() == 1;
       wiqtt.publishFoodLevel(food_level);
 
+      previous_feed_time = getTime();
 
       // save to non-volitle memory as needed
-      if (temp_num != num_of_fish) {
-        Preferences preferences;
-        preferences.begin("saved-values", false);
+      Preferences preferences;
+      preferences.begin("saved-values", false);
+      preferences.putInt("previous_feed_time", previous_feed_time);
+      if (temp_num != num_of_fish) {        
         preferences.putInt("num_of_fish", num_of_fish);
-        preferences.end();
       }
+      preferences.end();
 
-      // send message to web app that the fish have been fed
 
     }
     else{
@@ -389,8 +396,6 @@ void ledCmdTask( void *pvParameters ) {
     leds.changeColor(r, g, b);
   }
 }
-
-
 
 
 // *************************
@@ -621,14 +626,15 @@ void setup() {
   // init servo
   si.init(SERVO_PIN);
 
-  // init LEDs
-  leds.init(ledPin, ledNum);
-
-  // init LCD
-  lcd.init(TFT_CS, TFT_DC, TFT_MOSI, TFT_CLK, TFT_RST, TFT_MISO);
     
   // check if connected to computer
   userSetup();
+
+  // init LCD
+  lcd.init(TFT_CS, TFT_DC, TFT_MOSI, TFT_CLK, TFT_RST, TFT_MISO);
+
+  // init LEDs - needs to come after userSetup() to prevent power surge on USB
+  leds.init(ledPin, ledNum);
 
   // init wifi and MQTT
   wiqtt.setDeviceId(device_id);
@@ -636,9 +642,8 @@ void setup() {
   wiqtt.setupMQTT();
   wiqtt.setCallback(callback);
 
-
   // Setup clock
-  configTime(gmtOffset_sec, 0, "pool.ntp.org"); //TODO: figure out daylight offset?
+  configTime(gmtOffset_sec, 0, "pool.ntp.org");
 
   // create tasks
   Serial.println("Creating Tasks");
