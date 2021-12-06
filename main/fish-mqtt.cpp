@@ -96,6 +96,23 @@ void FishMqtt::publishSensorVals(float tempVal, float pHVal, int time) {
 }
 
 
+
+void FishMqtt::publishFoodLevel(bool foodLevel) {
+    DynamicJsonDocument doc(1024);
+    doc["food_remain"] = foodLevel;
+    doc["device_id"] = device_id;
+    String output;
+    serializeJson(doc, output);
+    // example output:
+    // {"food_remain": true, "device_id": "123"}
+
+
+    // publish the data to the broker
+    if (!connected()) MQTTreconnect();
+    publish("autoq/sensor/feed", output.c_str()); //need to convert to c_string
+
+}
+
 void FishMqtt::setAlertCreds(String User) {
     user_alrt = User;
 }

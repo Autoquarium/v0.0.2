@@ -84,7 +84,7 @@ int previous_feed_time = -1;
 
 // LED array
 const int ledPin = 2;
-const int ledNum = 50;
+const int ledNum = 120;
 LEDArray leds;
 
 // MQTT, WiFi and notification
@@ -353,7 +353,11 @@ void feedCmdTask( void *pvParameters){
       previous_feed_time = getTime();
       wiqtt.sendPushAlert("Fish have been fed!");
       
-      
+      // update dashboard food levels
+      bool food_level = ir.getFoodLevel() == 1;
+      wiqtt.publishFoodLevel(food_level);
+
+
       // save to non-volitle memory as needed
       if (temp_num != num_of_fish) {
         Preferences preferences;
@@ -361,12 +365,16 @@ void feedCmdTask( void *pvParameters){
         preferences.putInt("num_of_fish", num_of_fish);
         preferences.end();
       }
+
+      // send message to web app that the fish have been fed
+
     }
     else{
       Serial.println("Unable to feed, time interval too close.");
-      wiqtt.sendPushAlert("Unable to feed, you already fed your fish today");
+      wiqtt.sendPushAlert("Unable to feed, you already fed your fish today!");
     }
   }
+
 }
 
 void ledCmdTask( void *pvParameters ) {
@@ -407,6 +415,7 @@ void settingCmdTaskAutofeed( void *pvParameters ) {
     Preferences preferences;
     preferences.begin("saved-values", false);
     preferences.putBool("auto_feed", auto_feed);
+    preferences.end();
   }
 }
 
@@ -428,6 +437,7 @@ void settingCmdTaskAutoled( void *pvParameters ) {
     Preferences preferences;
     preferences.begin("saved-values", false);
     preferences.putBool("dynamic_lighting", dynamic_lighting);
+    preferences.end();
   }
 }
 

@@ -110,6 +110,15 @@ class FishMqtt : public PubSubClient {
 
 		
 		/**
+		 * @brief This function serializes food level and then 
+		 * publishes the serialized string to the MQTT broker
+		 * 
+		 * @param foodLevel true if food remains, false otherwise
+		 */
+		void publishFoodLevel(bool foodLevel);
+
+
+		/**
 		 * @brief Set the Alert Credentials
 		 * 
 		 * @param User API user
