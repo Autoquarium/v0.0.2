@@ -65,7 +65,10 @@ void Menu::testWifi(String ssid_in, String passwrd_in) {
     unsigned long start = millis();
     while (status != WL_CONNECTED) {
         status = WiFi.begin(ssid, passwrd);
-        delay(8000);
+        digitalWrite(led_pin, LOW);
+        delay(4000);
+        digitalWrite(led_pin, HIGH);
+        delay(4000);
         if (millis() - start > 40000) {
             Serial.println("Connection Failed");
             return;

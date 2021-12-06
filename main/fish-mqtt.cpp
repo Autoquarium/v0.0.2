@@ -5,6 +5,12 @@
 #include "fish-mqtt.h"
 
 
+void FishMqtt::ledSetup(int wifiLedPin) {
+    led_pin = wifiLedPin;
+    pinMode(led_pin, OUTPUT);
+    digitalWrite(led_pin, HIGH);
+}
+
 void FishMqtt::setDeviceId(String device_id_in) {
     device_id = device_id_in;
 }
@@ -28,7 +34,10 @@ void FishMqtt::connectToWifi() {
     while (status != WL_CONNECTED) {
         Serial.print(".");
         status = WiFi.begin(wifi_SSID, wifi_PWD);
-        delay(10000);
+        digitalWrite(led_pin, LOW);
+        delay(5000);
+        digitalWrite(led_pin, HIGH);
+        delay(5000);
     }
     Serial.println(WiFi.RSSI());
     Serial.println("Connected to WiFi");

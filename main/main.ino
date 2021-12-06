@@ -91,6 +91,7 @@ LEDArray leds;
 FishMqtt wiqtt;
 int publish_interval; // in minutes
 char CMD_PAYLOAD[30];
+int wifiLedPin = 26;
 
 //function prototypes
 void userSetup();
@@ -142,7 +143,7 @@ void load_settings() {
 
 void userSetup() {
   Serial.setTimeout(500);
-  Menu me;
+  Menu me(wifiLedPin);
   me.loop();
 }
 
@@ -626,7 +627,9 @@ void setup() {
   // init servo
   si.init(SERVO_PIN);
 
-    
+  // turn on front light
+  wiqtt.ledSetup(wifiLedPin);
+
   // check if connected to computer
   userSetup();
 

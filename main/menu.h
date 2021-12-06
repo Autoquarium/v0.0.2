@@ -23,6 +23,10 @@ class Menu {
 		// function pointer to the current menu
 		int (Menu::*current_menu)();
 
+
+		// led pin for wifi indicator
+		int led_pin;
+
 		Preferences preferences;
 
 
@@ -143,6 +147,15 @@ class Menu {
 		void execute(int menu_val);
 
 	public:
+
+		/**
+		 * @brief Construct a new Menu object
+		 * 
+		 * @param led_pin_in wifi indicator LED pin number
+		 */
+		Menu(int led_pin_in) {
+			led_pin = led_pin_in;
+		}
 
 		/**
 		 * @brief loops through all the menus as the user inputs values

@@ -40,6 +40,9 @@ class FishMqtt : public PubSubClient {
 		// WiFi client for esp32 chip
 		WiFiClientSecure espClient;
 
+		// indicator LED light
+		int led_pin;
+
 
 	public:
 
@@ -49,6 +52,13 @@ class FishMqtt : public PubSubClient {
 		 */
 		FishMqtt() : PubSubClient(espClient) {}
 
+
+		/**
+		 * @brief setup and turn on wifi indicator led
+		 * 
+		 * @param wifiLedPin the pin connected to the front light
+		 */
+		void ledSetup(int wifiLedPin);
 
 		/**
 		 * @brief Set the Device Id to be sent in the published message
