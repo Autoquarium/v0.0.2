@@ -47,28 +47,30 @@ const int PH_PIN = 35;    //pH sensor gpio pin
 DFRobotESPpH ph;
 
 // LCD pins
+
 const int TFT_DC = 17;
 const int TFT_CS = 15;
 const int TFT_RST = 5;
 const int TFT_MISO = 19;         
 const int TFT_MOSI = 23;           
 const int TFT_CLK = 18; 
+
 LCD lcd;
 TempSensor temperature;
 
 // ir sensor
-const int IR_PIN = 34; //TODO change to ESP pins
+const int IR_PIN = 32; //TODO change to ESP pins
 const int LED_PIN = 26; //TODO change to ESP pins
 const int IR_THRESHOLD = 50; //TODO change to reflect values in enclosure
 IRSensor ir;
 
 //Temperature chip
-int DS18S20_Pin = 4; //DS18S20 Signal pin on digital 2
+int DS18S20_Pin = 13; //DS18S20 Signal pin on digital 2
 
 // servo/feed
-const int SERVO_PIN = 32;
+const int SERVO_PIN = 33;
 const int DELAY_BETWEEN_ROTATION = 1000;
-const int MIN_FEED_INTERVAL = 720; //12 hours
+const int MIN_FEED_INTERVAL = 0; //12 hours
 FishServo si;
 int previous_feed_time = -1;
 
@@ -603,11 +605,14 @@ void setup() {
 
 
   // Setup clock
-  configTime(gmtOffset_sec, 0/*daylightOffset_sec*/, "pool.ntp.org"); //TODO: figure out daylight offset?
+  configTime(gmtOffset_sec, 0, "pool.ntp.org"); //TODO: figure out daylight offset?
 
   // create tasks
   Serial.println("Creating Tasks");
   taskCreation();
+  
 }
 
-void loop() { }
+void loop() { 
+    
+}
