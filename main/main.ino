@@ -343,11 +343,24 @@ void feedCmdTask( void *pvParameters){
     xSemaphoreTake(feed_semaphore, portMAX_DELAY);
     Serial.println("Feed button pressed");
     if((previous_feed_time == -1) || (getTimeDiff(getTime(), previous_feed_time) > MIN_FEED_INTERVAL)){
+      
+      int temp_num = num_of_fish;
+      num_of_fish = atoi(CMD_PAYLOAD);
+      
       for(int i = 0; i < num_of_fish; i++) {
         si.fullRotation(1000); // TODO: calibrate this for flaky fish food
       }
       previous_feed_time = getTime();
       wiqtt.sendPushAlert("Fish have been fed!");
+      
+      
+      // save to non-volitle memory as needed
+      if (temp_num != num_of_fish) {
+        Preferences preferences;
+        preferences.begin("saved-values", false);
+        preferences.putInt("num_of_fish", num_of_fish);
+        preferences.end();
+      }
     }
     else{
       Serial.println("Unable to feed, time interval too close.");
