@@ -47,13 +47,21 @@ const int PH_PIN = 35;    //pH sensor gpio pin
 DFRobotESPpH ph;
 
 // LCD pins
-
+/*
+old pins
 const int TFT_DC = 17;
 const int TFT_CS = 15;
 const int TFT_RST = 5;
 const int TFT_MISO = 19;         
 const int TFT_MOSI = 23;           
-const int TFT_CLK = 18; 
+const int TFT_CLK = 18;
+*/
+const int TFT_CS = 23;
+const int TFT_RST = 22;
+const int TFT_DC = 21;
+const int TFT_MOSI = 19;           
+const int TFT_CLK = 18;
+const int TFT_MISO = 5; 
 
 LCD lcd;
 TempSensor temperature;
@@ -306,21 +314,21 @@ void autoFeedChange( void *pvParameters ) {
   // convert publish interval from minutes into ms
   int delay_in_ms = 10 * 60 * 1000; //10 minutes to ms
   portTickType xPeriod = ( delay_in_ms / portTICK_RATE_MS );
-  xLastWakeTime = xTaskGetTickCount();
   
   for ( ;; ) {
     Serial.println("Auto feed check");
-    if((previous_feed_time == -1) || (getTimeDiff(getTime(), previous_feed_time) > MIN_FEED_INTERVAL)){
+    if((previous_feed_time == -1) || (getTimeDiff(getTime(), previous_feed_time) >= MIN_FEED_INTERVAL)){
       for(int i = 0; i < num_of_fish; i++) {
-        si.fullRotation(1000); // TODO: make this better
+        si.fullRotation(1000);
       }
+      wiqtt.sendPushAlert("Fish have been fed!");
       previous_feed_time = getTime();
     }
     else{
       Serial.println("Unable to auto feed, time interval too close.");
       // TODO: maybe send an alert to the user?
     }
-    vTaskDelayUntil( &xLastWakeTime, xPeriod );
+    vTaskDelay( xPeriod );
   }
 }
 
@@ -335,13 +343,28 @@ void feedCmdTask( void *pvParameters){
     xSemaphoreTake(feed_semaphore, portMAX_DELAY);
     Serial.println("Feed button pressed");
     if((previous_feed_time == -1) || (getTimeDiff(getTime(), previous_feed_time) > MIN_FEED_INTERVAL)){
+      
+      int temp_num = num_of_fish;
+      num_of_fish = atoi(CMD_PAYLOAD);
+      
       for(int i = 0; i < num_of_fish; i++) {
         si.fullRotation(1000); // TODO: calibrate this for flaky fish food
       }
       previous_feed_time = getTime();
+      wiqtt.sendPushAlert("Fish have been fed!");
+      
+      
+      // save to non-volitle memory as needed
+      if (temp_num != num_of_fish) {
+        Preferences preferences;
+        preferences.begin("saved-values", false);
+        preferences.putInt("num_of_fish", num_of_fish);
+        preferences.end();
+      }
     }
     else{
       Serial.println("Unable to feed, time interval too close.");
+      wiqtt.sendPushAlert("Unable to feed, you already fed your fish today");
     }
   }
 }
