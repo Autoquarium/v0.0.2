@@ -43,7 +43,7 @@ const int MIN_PH = 4;
 // pH sensor
 const float ESPADC = 4096.0;   //the esp Analog Digital Convertion value
 const int ESPVOLTAGE = 3300; //the esp voltage supply value
-const int PH_PIN = 35;    //pH sensor gpio pin
+const int PH_PIN = 33;    //pH sensor gpio pin
 DFRobotESPpH ph;
 
 // LCD pins
@@ -67,16 +67,16 @@ LCD lcd;
 TempSensor temperature;
 
 // ir sensor
-const int IR_PIN = 32; //TODO change to ESP pins
-const int LED_PIN = 26; //TODO change to ESP pins
-const int IR_THRESHOLD = 50; //TODO change to reflect values in enclosure
+const int IR_PIN = 32;
+//const int LED_PIN = 25; //TODO change to ESP pins
+const int IR_THRESHOLD = 50;
 IRSensor ir;
 
 //Temperature chip
 int DS18S20_Pin = 13; //DS18S20 Signal pin on digital 2
 
 // servo/feed
-const int SERVO_PIN = 33;
+const int SERVO_PIN = 26;
 const int DELAY_BETWEEN_ROTATION = 1000;
 const int MIN_FEED_INTERVAL = 0; //12 hours
 FishServo si;
@@ -91,7 +91,7 @@ LEDArray leds;
 FishMqtt wiqtt;
 int publish_interval; // in minutes
 char CMD_PAYLOAD[30];
-int wifiLedPin = 26;
+const int wifiLedPin = 26;
 
 //function prototypes
 void userSetup();
@@ -280,7 +280,7 @@ void publishSensorVals( void * parameter ) {
     Serial.println(temp_read);
 
     // get water pH
-    float pH_read = ph.getPH((temp_read-32)/1.8); //convert temperature to celcius
+    float pH_read = ph.getPH(25);//(temp_read-32)/1.8); //convert temperature to celcius
     Serial.print("pH sensor: ");
     Serial.println(pH_read);
 
@@ -655,5 +655,7 @@ void setup() {
 }
 
 void loop() { 
-    
+    ph.calibration();
+   ph.getPH(25);
+    delay(1000);
 }
