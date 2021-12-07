@@ -269,7 +269,7 @@ void publishSensorVals( void * parameter ) {
     Serial.println(temp_read);
 
     // get water pH
-    float pH_read = ph.getPH((temp_read-32)/1.8); //convert temperature to celcius
+    float pH_read = ph.getPH(25);//(temp_read-32)/1.8); //convert temperature to celcius
     Serial.print("pH sensor: ");
     Serial.println(pH_read);
 
