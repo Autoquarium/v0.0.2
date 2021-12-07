@@ -98,7 +98,7 @@ class FishMqtt : public PubSubClient {
 		 * @brief Checks wifi connection and reconnects if needed
 		 * 
 		 */
-		void checkWificonnection();
+		bool checkWificonnection();
 
 
 		/**

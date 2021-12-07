@@ -35,9 +35,17 @@ void FishMqtt::connectToWifi() {
         Serial.print(".");
         status = WiFi.begin(wifi_SSID, wifi_PWD);
         digitalWrite(led_pin, LOW);
-        delay(5000);
+        delay(1500);
         digitalWrite(led_pin, HIGH);
-        delay(5000);
+        delay(1500);
+        digitalWrite(led_pin, LOW);
+        delay(1500);
+        digitalWrite(led_pin, HIGH);
+        delay(1500);
+        digitalWrite(led_pin, LOW);
+        delay(1500);
+        digitalWrite(led_pin, HIGH);
+        delay(1500);
     }
     Serial.println(WiFi.RSSI());
     Serial.println("Connected to WiFi");
@@ -72,15 +80,16 @@ void FishMqtt::MQTTreconnect() {
 }
 
 
-void FishMqtt::checkWificonnection() {
+bool FishMqtt::checkWificonnection() {
     if (WiFi.status() != WL_CONNECTED) {
-        Serial.print("Connection was lost");
-        connectToWifi();
+        return false;
     }
+    return true;
 }
 
 
 void FishMqtt::setupMQTT() {
+    setKeepAlive( 90 ); 
     setServer(mqttServer, mqttPort);
     delay(1500);
     MQTTreconnect();
@@ -119,14 +128,14 @@ void FishMqtt::publishFoodLevel(bool foodLevel) {
     // publish the data to the broker
     if (!connected()) MQTTreconnect();
     publish("autoq/sensor/feed", output.c_str()); //need to convert to c_string
-    
-    
+
+    /*
     if (!foodLevel) {
         sendPushAlert("Fish Food Level is Low!");
     } else {
         sendPushAlert("Fish have been fed");
     }
-
+    */
 }
 
 void FishMqtt::setAlertCreds(String User) {
@@ -139,8 +148,6 @@ void FishMqtt::sendPushAlert(String msg) {
     HTTPClient http;
     String url = "https://api.pushover.net/1/messages.json";
     String data_to_send = "token=" + API_key + "&user=" + user_alrt + "&message=" + msg;
-    Serial.println(data_to_send);
-
     http.begin(espClient, url);  //Specify destination for HTTP request
     http.addHeader("Content-Type", "application/x-www-form-urlencoded");
     int httpResponseCode = http.POST(data_to_send);
