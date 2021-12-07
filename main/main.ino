@@ -49,15 +49,6 @@ const int PH_PIN = 33;    //pH sensor gpio pin
 DFRobotESPpH ph;
 
 // LCD pins
-/*
-old pins
-const int TFT_DC = 17;
-const int TFT_CS = 15;
-const int TFT_RST = 5;
-const int TFT_MISO = 19;         
-const int TFT_MOSI = 23;           
-const int TFT_CLK = 18;
-*/
 const int TFT_CS = 23;
 const int TFT_RST = 22;
 const int TFT_DC = 21;
@@ -69,8 +60,7 @@ LCD lcd;
 TempSensor temperature;
 
 // ir sensor
-const int IR_PIN = 32; //TODO change to ESP pins
-const int LED_PIN = 26; //TODO change to ESP pins
+const int IR_PIN = 32;
 const int IR_THRESHOLD = 20; //TODO change to reflect values in enclosure
 IRSensor ir;
 
@@ -258,10 +248,7 @@ void publishSensorVals( void * parameter ) {
   xLastWakeTime = xTaskGetTickCount ();
   
   for( ;; ) {
-    // Wait for the next cycle.
-    vTaskDelayUntil( &xLastWakeTime, xPeriod );
     Serial.println("Publishing new sensor values to broker");
-
 
     // get water temperature
     float temp_read = temperature.getTemp();
@@ -277,6 +264,8 @@ void publishSensorVals( void * parameter ) {
     xSemaphoreTake(mqtt_semaphore, portMAX_DELAY);
     wiqtt.publishSensorVals(temp_read, pH_read, getTime());
     xSemaphoreGive(mqtt_semaphore);
+    // Wait for the next cycle.
+    vTaskDelayUntil( &xLastWakeTime, xPeriod );
   }
 }
 
@@ -284,7 +273,7 @@ void publishSensorVals( void * parameter ) {
 void dynamicLightingChange( void * parameter ) {
   portTickType xLastWakeTime;
   
-  int delay_in_ms = 1* 60 * 1000; // 10 minutes to ms //CHANGED TO 1 minute for testing
+  int delay_in_ms = 1* 60 * 1000; // 1 minute to ms
   portTickType xPeriod = ( delay_in_ms / portTICK_RATE_MS );
   xLastWakeTime = xTaskGetTickCount();
 
@@ -334,7 +323,6 @@ void autoFeedChange( void *pvParameters ) {
 // CMD TASKS
 // (triggered in callback)
 // **************************
-
 void feedCmdTask( void *pvParameters){
   for ( ;; ) {
     xSemaphoreTake(feed_semaphore, portMAX_DELAY);
@@ -497,18 +485,7 @@ void taskCreation() {
     2, // this task is NOT vital for correct system operation
     NULL,
     1
-    );                             
-/*
-  xTaskCreatePinnedToCore(
-    keepWifiConnected,
-    "keep wifi connected",
-    10000,
-    NULL,
-    3, // this task is VERY vital for correct system operation
-    NULL,
-    1
-    );                             
-*/
+    );
 
   xTaskCreatePinnedToCore(
     keepAliveMQTT,
@@ -646,12 +623,7 @@ void setup() {
 
   // create tasks
   Serial.println("Creating Tasks");
-  taskCreation();
-
-  
-
-//  ir.init(IR_PIN, IR_THRESHOLD);
-  
+  taskCreation();  
 }
 
 void loop() { 
