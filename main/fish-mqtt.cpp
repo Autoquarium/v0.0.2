@@ -5,6 +5,12 @@
 #include "fish-mqtt.h"
 
 
+void FishMqtt::ledSetup(int wifiLedPin) {
+    led_pin = wifiLedPin;
+    pinMode(led_pin, OUTPUT);
+    digitalWrite(led_pin, HIGH);
+}
+
 void FishMqtt::setDeviceId(String device_id_in) {
     device_id = device_id_in;
 }
@@ -28,7 +34,18 @@ void FishMqtt::connectToWifi() {
     while (status != WL_CONNECTED) {
         Serial.print(".");
         status = WiFi.begin(wifi_SSID, wifi_PWD);
-        delay(10000);
+        digitalWrite(led_pin, LOW);
+        delay(1500);
+        digitalWrite(led_pin, HIGH);
+        delay(1500);
+        digitalWrite(led_pin, LOW);
+        delay(1500);
+        digitalWrite(led_pin, HIGH);
+        delay(1500);
+        digitalWrite(led_pin, LOW);
+        delay(1500);
+        digitalWrite(led_pin, HIGH);
+        delay(1500);
     }
     Serial.println(WiFi.RSSI());
     Serial.println("Connected to WiFi");
@@ -63,15 +80,16 @@ void FishMqtt::MQTTreconnect() {
 }
 
 
-void FishMqtt::checkWificonnection() {
+bool FishMqtt::checkWificonnection() {
     if (WiFi.status() != WL_CONNECTED) {
-        Serial.print("Connection was lost");
-        connectToWifi();
+        return false;
     }
+    return true;
 }
 
 
 void FishMqtt::setupMQTT() {
+    setKeepAlive( 90 ); 
     setServer(mqttServer, mqttPort);
     delay(1500);
     MQTTreconnect();
@@ -96,6 +114,30 @@ void FishMqtt::publishSensorVals(float tempVal, float pHVal, int time) {
 }
 
 
+
+void FishMqtt::publishFoodLevel(bool foodLevel) {
+    DynamicJsonDocument doc(1024);
+    doc["food_remain"] = foodLevel;
+    doc["device_id"] = device_id;
+    String output;
+    serializeJson(doc, output);
+    // example output:
+    // {"food_remain": true, "device_id": "123"}
+
+
+    // publish the data to the broker
+    if (!connected()) MQTTreconnect();
+    publish("autoq/sensor/feed", output.c_str()); //need to convert to c_string
+
+    /*
+    if (!foodLevel) {
+        sendPushAlert("Fish Food Level is Low!");
+    } else {
+        sendPushAlert("Fish have been fed");
+    }
+    */
+}
+
 void FishMqtt::setAlertCreds(String User) {
     user_alrt = User;
 }
@@ -106,8 +148,6 @@ void FishMqtt::sendPushAlert(String msg) {
     HTTPClient http;
     String url = "https://api.pushover.net/1/messages.json";
     String data_to_send = "token=" + API_key + "&user=" + user_alrt + "&message=" + msg;
-    Serial.println(data_to_send);
-
     http.begin(espClient, url);  //Specify destination for HTTP request
     http.addHeader("Content-Type", "application/x-www-form-urlencoded");
     int httpResponseCode = http.POST(data_to_send);

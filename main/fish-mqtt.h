@@ -40,6 +40,9 @@ class FishMqtt : public PubSubClient {
 		// WiFi client for esp32 chip
 		WiFiClientSecure espClient;
 
+		// indicator LED light
+		int led_pin;
+
 
 	public:
 
@@ -49,6 +52,13 @@ class FishMqtt : public PubSubClient {
 		 */
 		FishMqtt() : PubSubClient(espClient) {}
 
+
+		/**
+		 * @brief setup and turn on wifi indicator led
+		 * 
+		 * @param wifiLedPin the pin connected to the front light
+		 */
+		void ledSetup(int wifiLedPin);
 
 		/**
 		 * @brief Set the Device Id to be sent in the published message
@@ -85,10 +95,12 @@ class FishMqtt : public PubSubClient {
 
 
 		/**
-		 * @brief Checks wifi connection and reconnects if needed
+		 * @brief Checks wifi connection
 		 * 
+		 * @return true wifi is still connected
+		 * @return false wifi is no longer connected
 		 */
-		void checkWificonnection();
+		bool checkWificonnection();
 
 
 		/**
@@ -109,6 +121,15 @@ class FishMqtt : public PubSubClient {
 		void publishSensorVals(float tempVal, float pHVal, int time);
 
 		
+		/**
+		 * @brief This function serializes food level and then 
+		 * publishes the serialized string to the MQTT broker
+		 * 
+		 * @param foodLevel true if food remains, false otherwise
+		 */
+		void publishFoodLevel(bool foodLevel);
+
+
 		/**
 		 * @brief Set the Alert Credentials
 		 * 

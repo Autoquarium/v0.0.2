@@ -81,7 +81,7 @@ void LEDArray::init(const int ledPinIn, int numLEDsIn) {
             break;
     }
 
-    setRGBColor(50, 50, 50);
+    setRGBColor(255, 255, 255);
 }
 
 void LEDArray::changeColor(int r, int g, int b) {

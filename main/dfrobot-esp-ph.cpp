@@ -41,6 +41,7 @@ void DFRobotESPpH::init(int PH_PIN_in, float ESPADC_in, int ESPVOLTAGE_in) {
  */
 float DFRobotESPpH::getPH(float temp_in) {
     float voltage = analogRead(PH_PIN) / ESPADC * ESPVOLTAGE; // read the voltage
+    Serial.println(voltage);
     this->_voltage = voltage;
     this->_temperature = temp_in;
     return readPH(voltage, temp_in); // convert voltage to pH with temperature compensation
@@ -54,9 +55,9 @@ DFRobotESPpH::DFRobotESPpH()
 {
     this->_temperature = 25.0;
     this->_phValue = 7.0;
-    this->_acidVoltage = 2032.44;   //buffer solution 4.0 at 25C
-    this->_neutralVoltage = 1500.0; //buffer solution 7.0 at 25C
-    this->_voltage = 1500.0;
+    this->_acidVoltage = 1844.17;   //buffer solution 4.0 at 25C
+    this->_neutralVoltage = 1348.68; //buffer solution 7.0 at 25C
+    this->_voltage = 1348.68;
 }
 
 /**
@@ -84,17 +85,19 @@ void DFRobotESPpH::begin()
 {
 	preferences.begin("pHVals", false);
     //check if calibration values (neutral and acid) are stored in eeprom
+    //preferences.putFloat("voltage7", this->_neutralVoltage);
     this->_neutralVoltage = preferences.getFloat("voltage7", 0); //load the neutral (pH = 7.0)voltage of the pH board from the EEPROM
     if (this->_neutralVoltage == 0)
     {
-        this->_neutralVoltage = 1500.0; // new EEPROM, write typical voltage
+        this->_neutralVoltage = 1348.68; // new EEPROM, write typical voltage
         preferences.putFloat("voltage7", this->_neutralVoltage);
     }
 
+    //preferences.putFloat("voltage4", this->_acidVoltage);
     this->_acidVoltage = preferences.getFloat("voltage4", 0); //load the acid (pH = 4.0) voltage of the pH board from the EEPROM
     if (this->_acidVoltage == 0)
     {
-        this->_acidVoltage = 2032.44; // new EEPROM, write typical voltage
+        this->_acidVoltage = 1844.17; // new EEPROM, write typical voltage
         preferences.putFloat("voltage4", this->_acidVoltage);
     }
 	preferences.end();
