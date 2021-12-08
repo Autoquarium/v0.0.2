@@ -77,9 +77,9 @@ int previous_feed_time;
 
 // LED array
 const int ledPin = 2;
-const int ledNum = 50
+const int ledNum = 50;
+bool leds_off = false;
 
-;
 LEDArray leds;
 
 // MQTT, WiFi and notification
@@ -283,9 +283,11 @@ void dynamicLightingChange( void * parameter ) {
 
   for( ;; ) {
     vTaskDelay(xPeriod );
-    Serial.println("Dynamic lighting change");
-    leds.updateDynamicColor(getTime());
+    if (!leds_off) {
+      Serial.println("Dynamic lighting change");
+      leds.updateDynamicColor(getTime());
     }
+  }
 }
 
 
@@ -374,7 +376,18 @@ void ledCmdTask( void *pvParameters ) {
     int r = atoi(strtok(CMD_PAYLOAD, ","));
     int g = atoi(strtok(NULL, ","));
     int b = atoi(strtok(NULL, ","));
-    leds.changeColor(r, g, b);
+    
+    if (r = -1) {
+      leds.updateDynamicColor(getTime());
+    } else {
+      leds.changeColor(r, g, b);
+    }
+
+    if (!r && !g && !b) {
+      leds_off = true;
+    } else {
+      leds_off = false;
+    }
   }
 }
 
