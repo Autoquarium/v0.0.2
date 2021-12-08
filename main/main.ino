@@ -62,7 +62,7 @@ TempSensor temperature;
 // ir sensor
 const int IR_PIN = 32;
 const int IR_THRESHOLD = 20; //TODO change to reflect values in enclosure
-int food_level;
+//int food_level;
 IRSensor ir;
 
 //Temperature chip
@@ -144,28 +144,30 @@ void userSetup() {
 
 void dangerValueCheck(float tempVal, float pHVal) {
 
-    String msg;
-
+    String s1;
+    String s2;
+    
     // water tempurature value check
     if (tempVal >= MAX_TEMP) {
-        msg = "High water temperature detected. Measured value: " + String(tempVal) + " deg-F";
-        wiqtt.sendPushAlert(msg);
+        s1 = "High water temperature detected. Measured value: " + String(tempVal) + " deg-F";
     }
     else if (tempVal <= MIN_TEMP) {
-        msg = "Low water temperature detected. Measured value: " + String(tempVal) + " deg-F";
-        wiqtt.sendPushAlert(msg);
+        s1 = "Low water temperature detected. Measured value: " + String(tempVal) + " deg-F";
     }
     
     // pH value check
     if (pHVal >= MAX_PH) {
-        msg = "High water pH detected. Measured value: " + String(pHVal);
-        wiqtt.sendPushAlert(msg);
+        s2 = "High water pH detected. Measured value: " + String(pHVal);
     }
     else if (pHVal <= MIN_PH) {
-        msg = "Low water pH detected. Measured value: " + String(pHVal);
-        wiqtt.sendPushAlert(msg);
+        s2 = "Low water pH detected. Measured value: " + String(pHVal);
     }
-    
+
+    // needed after push notifications
+    if (s1.length() != 0 || s2.length() != 0){
+      wiqtt.sendPushAlert(s1, s2);
+      wiqtt.MQTTreconnect();
+    }
     return;
 }
 
@@ -222,7 +224,6 @@ void keepAliveMQTT( void * parameter ){
 
   // set delay period (250 ms)
   portTickType xPeriod = ( 250 / portTICK_RATE_MS );
-  //xLastWakeTime = xTaskGetTickCount ();
 
   for(;;){
     if (wiqtt.checkWificonnection()) {
@@ -246,7 +247,6 @@ void publishSensorVals( void * parameter ) {
   xLastWakeTime = xTaskGetTickCount ();
   
   for( ;; ) {
-
     Serial.println("Publishing new sensor values to broker");
 
     // get water temperature
@@ -264,9 +264,6 @@ void publishSensorVals( void * parameter ) {
     wiqtt.publishSensorVals(temp_read, pH_read, getTime());
     if (send_alert) dangerValueCheck(temp_read, pH_read);
     xSemaphoreGive(mqtt_semaphore);
-
-    // update LCD display
-    lcd.updateLCD(temp_read, pH_read, food_level, num_of_fish);
     
     // Wait for the next cycle.
     vTaskDelayUntil( &xLastWakeTime, xPeriod );
@@ -317,9 +314,6 @@ void autoFeedChange( void *pvParameters ) {
       
       previous_feed_time = getTime();
     }
-    else{
-      Serial.println("Unable to auto feed, time interval too close.");
-    }
     vTaskDelay( xPeriod );
   }
 }
@@ -345,22 +339,20 @@ void feedCmdTask( void *pvParameters){
       }
       
       // update dashboard food levels
-      food_level = ir.getFoodLevel();
+      bool food_level = ir.getFoodLevel();
 
       xSemaphoreTake(mqtt_semaphore, portMAX_DELAY);
       wiqtt.publishFoodLevel(food_level == 1);
       xSemaphoreGive(mqtt_semaphore);
       
       previous_feed_time = getTime();
-
-      // save to non-volitle memory as needed
-      // TODO
       
     }
     else{
       Serial.println("Unable to feed, time interval too close.");
       xSemaphoreTake(mqtt_semaphore, portMAX_DELAY);
       wiqtt.sendPushAlert("Unable to feed, you already fed your fish today!");
+      wiqtt.MQTTreconnect();
       xSemaphoreGive(mqtt_semaphore);
     }
   }
@@ -452,6 +444,8 @@ void settingCmdTaskAutoled( void *pvParameters ) {
  * @param length the legnth of the data receaved
  */
 void callback(char* topic, byte* payload, unsigned int length) {
+
+    Serial.println("in callback");
   
     // save payload to CMD_PAYLOAD
     // need to use a mutex for the payload so that the cmd tasks are not reading while this is writting
@@ -499,7 +493,7 @@ void taskCreation() {
     "publish sensor vals",
     10000,
     NULL,
-    2, // this task is NOT vital for correct system operation
+    3, // this task is NOT vital for correct system operation
     NULL,
     1
     );                             
@@ -509,7 +503,7 @@ void taskCreation() {
     "check Incoming MQTT msgs",
     10000,
     NULL,
-    3, // this task is vital for correct system operation
+    4, // this task is vital for correct system operation
     NULL,
     1
     );                             
@@ -559,7 +553,7 @@ void taskCreation() {
     "updates color",
     10000,
     NULL,
-    0, // not time sensitive
+    1, // not time sensitive
     &dynamicLEDTask,
     1
     );
@@ -577,12 +571,12 @@ void taskCreation() {
   // suspend the dynamic lighting task until dynamic lighting is enabled by the user
   if (!dynamic_lighting) {
     vTaskSuspend(dynamicLEDTask);
-  }
+    }
 
   // suspend the auto feed task until auto feed is enabled by the user
   if (!auto_feed) {
-    vTaskSuspend(autoFeedTask);
-  }
+   vTaskSuspend(autoFeedTask);
+   }
 }
 
 
