@@ -156,6 +156,7 @@ void FishMqtt::sendPushAlert(String msg1, String msg2) {
 
   // post second message
   if (msg2.length() != 0) {
+    delay(3);
     String data_to_send = "token=" + API_key + "&user=" + user_alrt + "&message=" + msg2;
     http.POST(data_to_send);
   }

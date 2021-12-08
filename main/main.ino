@@ -164,10 +164,14 @@ void dangerValueCheck(float tempVal, float pHVal) {
     }
 
     // needed after push notifications
-    if (s1.length() != 0 || s2.length() != 0){
-      wiqtt.sendPushAlert(s1, s2);
-      wiqtt.MQTTreconnect();
+    if (s1.length() != 0) {
+      wiqtt.sendPushAlert(s1);
     }
+    if (s2.length() != 0) {
+      wiqtt.sendPushAlert(s2);
+    }
+
+    wiqtt.MQTTreconnect();
     return;
 }
 
@@ -569,14 +573,14 @@ void taskCreation() {
     );
 
   // suspend the dynamic lighting task until dynamic lighting is enabled by the user
-  if (!dynamic_lighting) {
+  //if (!dynamic_lighting) {
     vTaskSuspend(dynamicLEDTask);
-    }
+  //}
 
   // suspend the auto feed task until auto feed is enabled by the user
-  if (!auto_feed) {
+  //if (!auto_feed) {
    vTaskSuspend(autoFeedTask);
-   }
+  //}
 }
 
 
