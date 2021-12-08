@@ -129,13 +129,11 @@ void FishMqtt::publishFoodLevel(bool foodLevel) {
     if (!connected()) MQTTreconnect();
     publish("autoq/sensor/feed", output.c_str()); //need to convert to c_string
 
-    /*
+    sendPushAlert("Fish have been fed");
+
     if (!foodLevel) {
         sendPushAlert("Fish Food Level is Low!");
-    } else {
-        sendPushAlert("Fish have been fed");
     }
-    */
 }
 
 void FishMqtt::setAlertCreds(String User) {
@@ -145,12 +143,17 @@ void FishMqtt::setAlertCreds(String User) {
 
 void FishMqtt::sendPushAlert(String msg) {
     Serial.println("sending notifiction");
-    HTTPClient http;
-    String url = "https://api.pushover.net/1/messages.json";
-    String data_to_send = "token=" + API_key + "&user=" + user_alrt + "&message=" + msg;
-    http.begin(espClient, url);  //Specify destination for HTTP request
-    http.addHeader("Content-Type", "application/x-www-form-urlencoded");
-    int httpResponseCode = http.POST(data_to_send);
-    Serial.println(httpResponseCode);
-    http.end();  //Free resources
+    try {
+        HTTPClient http;
+        String url = "https://api.pushover.net/1/messages.json";
+        String data_to_send = "token=" + API_key + "&user=" + user_alrt + "&message=" + msg;
+        http.begin(espClient, url);  //Specify destination for HTTP request
+        http.addHeader("Content-Type", "application/x-www-form-urlencoded");
+        int httpResponseCode = http.POST(data_to_send);
+        Serial.println(httpResponseCode);
+        http.end();  //Free resources
+    }
+    catch(...) {
+        Serial.println("ERROR SENDING NOTIFICATION");
+    }
 }
