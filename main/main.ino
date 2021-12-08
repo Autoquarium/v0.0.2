@@ -357,7 +357,9 @@ void feedCmdTask( void *pvParameters){
     }
     else{
       Serial.println("Unable to feed, time interval too close.");
+      xSemaphoreTake(mqtt_semaphore, portMAX_DELAY);
       wiqtt.sendPushAlert("Unable to feed, you already fed your fish today!");
+      xSemaphoreGive(mqtt_semaphore);
     }
   }
 

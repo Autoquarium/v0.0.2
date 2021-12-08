@@ -150,6 +150,7 @@ void FishMqtt::sendPushAlert(String msg) {
         http.begin(espClient, url);  //Specify destination for HTTP request
         http.addHeader("Content-Type", "application/x-www-form-urlencoded");
         int httpResponseCode = http.POST(data_to_send);
+        Serial.print("HTTP response: ");
         Serial.println(httpResponseCode);
         http.end();  //Free resources
     }
