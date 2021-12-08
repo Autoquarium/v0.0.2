@@ -418,6 +418,7 @@ void settingCmdTaskAutoled( void *pvParameters ) {
       Serial.println("dynamic LED enabled");
       vTaskResume( dynamicLEDTask );
       dynamic_lighting = true;
+      leds.updateDynamicColor(getTime());
     }
     
     // save updated values to non-volitile memory
