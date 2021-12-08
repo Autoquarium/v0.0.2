@@ -76,7 +76,9 @@ int previous_feed_time;
 
 // LED array
 const int ledPin = 2;
-const int ledNum = 120;
+const int ledNum = 50
+
+;
 LEDArray leds;
 
 // MQTT, WiFi and notification
@@ -248,7 +250,9 @@ void publishSensorVals( void * parameter ) {
   xLastWakeTime = xTaskGetTickCount ();
   
   for( ;; ) {
+
     Serial.println("Publishing new sensor values to broker");
+
 
     // get water temperature
     float temp_read = temperature.getTemp();
@@ -323,6 +327,7 @@ void autoFeedChange( void *pvParameters ) {
 // CMD TASKS
 // (triggered in callback)
 // **************************
+
 void feedCmdTask( void *pvParameters){
   for ( ;; ) {
     xSemaphoreTake(feed_semaphore, portMAX_DELAY);
@@ -485,7 +490,7 @@ void taskCreation() {
     2, // this task is NOT vital for correct system operation
     NULL,
     1
-    );
+    );                             
 
   xTaskCreatePinnedToCore(
     keepAliveMQTT,
@@ -623,7 +628,7 @@ void setup() {
 
   // create tasks
   Serial.println("Creating Tasks");
-  taskCreation();  
+  taskCreation();
 }
 
 void loop() { 
