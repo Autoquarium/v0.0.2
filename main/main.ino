@@ -62,6 +62,7 @@ TempSensor temperature;
 // ir sensor
 const int IR_PIN = 32;
 const int IR_THRESHOLD = 20; //TODO change to reflect values in enclosure
+int food_level;
 IRSensor ir;
 
 //Temperature chip
@@ -90,7 +91,7 @@ int wifiLedPin = 12;
 //function prototypes
 void userSetup();
 void load_settings();
-void dangerValueCheck( float tempVal, float pHVal, int foodLevel );
+void dangerValueCheck( float tempVal, float pHVal );
 
 
 // task handlers
@@ -141,7 +142,7 @@ void userSetup() {
 }
 
 
-void dangerValueCheck(float tempVal, float pHVal, int foodLevel ) {
+void dangerValueCheck(float tempVal, float pHVal) {
 
     String msg;
 
@@ -165,11 +166,6 @@ void dangerValueCheck(float tempVal, float pHVal, int foodLevel ) {
         wiqtt.sendPushAlert(msg);
     }
     
-    // food level check
-    if (foodLevel == 0) {
-        msg = "Low food level detected, refill food hopper";
-        wiqtt.sendPushAlert(msg);
-    }
     return;
 }
 
@@ -253,21 +249,25 @@ void publishSensorVals( void * parameter ) {
 
     Serial.println("Publishing new sensor values to broker");
 
-
     // get water temperature
     float temp_read = temperature.getTemp();
     Serial.print("Temp sensor: ");
     Serial.println(temp_read);
 
     // get water pH
-    float pH_read = ph.getPH(25);//(temp_read-32)/1.8); //convert temperature to celcius
+    float pH_read = ph.getPH(25);//(temp_read-32)/1.8); //convert temperature to celcius TODO: replace for final submit
     Serial.print("pH sensor: ");
     Serial.println(pH_read);
 
     // publish data
     xSemaphoreTake(mqtt_semaphore, portMAX_DELAY);
     wiqtt.publishSensorVals(temp_read, pH_read, getTime());
+    if (send_alert) dangerValueCheck(temp_read, pH_read);
     xSemaphoreGive(mqtt_semaphore);
+
+    // update LCD display
+    lcd.updateLCD(temp_read, pH_read, food_level, num_of_fish);
+    
     // Wait for the next cycle.
     vTaskDelayUntil( &xLastWakeTime, xPeriod );
   }
@@ -343,18 +343,13 @@ void feedCmdTask( void *pvParameters){
       }
       
       // update dashboard food levels
-      bool food_level = ir.getFoodLevel() == 1;
+      food_level = ir.getFoodLevel();
 
       xSemaphoreTake(mqtt_semaphore, portMAX_DELAY);
-      wiqtt.publishFoodLevel(food_level);
+      wiqtt.publishFoodLevel(food_level == 1);
       xSemaphoreGive(mqtt_semaphore);
       
-      
       previous_feed_time = getTime();
-
-      // update LCD
-      // TODO
-      
 
       // save to non-volitle memory as needed
       // TODO
@@ -407,6 +402,7 @@ void settingCmdTaskAutofeed( void *pvParameters ) {
     preferences.end();
   }
 }
+
 
 void settingCmdTaskAutoled( void *pvParameters ) {
   for ( ;; ) {
@@ -547,7 +543,7 @@ void taskCreation() {
     "updates color",
     10000,
     NULL,
-    1, // not time sensitive
+    0, // not time sensitive
     &dynamicLEDTask,
     1
     );
