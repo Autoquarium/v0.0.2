@@ -69,6 +69,7 @@ const int TFT_MISO = 19;
 
 LCD lcd;
 TempSensor temperature;
+int food_level = 0;
 
 // ir sensor
 const int IR_PIN = 32;
@@ -279,6 +280,8 @@ void publishSensorVals( void * parameter ) {
     wiqtt.publishSensorVals(temp_read, pH_read, getTime());
     if (send_alert) dangerValueCheck(temp_read, pH_read);
     xSemaphoreGive(mqtt_semaphore);
+
+    lcd.updateLCD(temp_read, pH_read, food_level, 5);
     
     // Wait for the next cycle.
     vTaskDelayUntil( &xLastWakeTime, xPeriod );
@@ -322,9 +325,9 @@ void autoFeedChange( void *pvParameters ) {
         si.fullRotation(1000);
       }
 
-      bool food_level = ir.getFoodLevel() == 1;
+      food_level = ir.getFoodLevel();
       xSemaphoreTake(mqtt_semaphore, portMAX_DELAY);
-      wiqtt.publishFoodLevel(food_level);
+      wiqtt.publishFoodLevel(food_level == 1);
       xSemaphoreGive(mqtt_semaphore);
       
       previous_feed_time = getTime();
