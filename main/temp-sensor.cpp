@@ -3,6 +3,12 @@
 void TempSensor::init(int pin) {
     pinMode(pin, INPUT);
     ds = new OneWire(pin);
+
+    //should hopefully fix incorrect temperature readings
+    for(int i = 0; i < 10; i++){ 
+      getTemp();
+      delay(10);
+    }
 } 
 
 float TempSensor::getTemp() {

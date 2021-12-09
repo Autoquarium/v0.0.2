@@ -21,6 +21,7 @@ SemaphoreHandle_t feed_semaphore;
 SemaphoreHandle_t led_semaphore;
 SemaphoreHandle_t autoled_semaphore;
 SemaphoreHandle_t autofeed_semaphore;
+SemaphoreHandle_t mqtt_semaphore;
 
 
 // mutex for CMD_PAYLOAD - USE MUTEX BECAUSE ITS A SHARED RESOURCE:
@@ -39,6 +40,7 @@ const int MAX_TEMP  = 90;
 const int MIN_TEMP = 70;
 const int MAX_PH = 9;
 const int MIN_PH = 4;
+
 
 // pH sensor
 const float ESPADC = 4096.0;   //the esp Analog Digital Convertion value
@@ -70,8 +72,8 @@ TempSensor temperature;
 
 // ir sensor
 const int IR_PIN = 32;
-//const int LED_PIN = 25; //TODO change to ESP pins
-const int IR_THRESHOLD = 50;
+const int IR_THRESHOLD = 20; //TODO change to reflect values in enclosure
+//int food_level;
 IRSensor ir;
 
 //Temperature chip
@@ -80,25 +82,27 @@ int DS18S20_Pin = 13; //DS18S20 Signal pin on digital 2
 // servo/feed
 const int SERVO_PIN = 26;
 const int DELAY_BETWEEN_ROTATION = 1000;
-const int MIN_FEED_INTERVAL = 0; //12 hours
+const int MIN_FEED_INTERVAL = 1; //1 minute
 FishServo si;
 int previous_feed_time;
 
 // LED array
 const int ledPin = 2;
-const int ledNum = 120;
+const int ledNum = 50;
+bool leds_off = false;
+
 LEDArray leds;
 
 // MQTT, WiFi and notification
 FishMqtt wiqtt;
 int publish_interval; // in minutes
 char CMD_PAYLOAD[30];
-const int wifiLedPin = 26;
+int wifiLedPin = 12;
 
 //function prototypes
 void userSetup();
 void load_settings();
-void dangerValueCheck( float tempVal, float pHVal, int foodLevel );
+void dangerValueCheck( float tempVal, float pHVal );
 
 
 // task handlers
@@ -138,7 +142,6 @@ void load_settings() {
   if (alert_usr != "no value") {
     send_alert = true;
   }
-  
   preferences.end();
 }
 
@@ -150,35 +153,36 @@ void userSetup() {
 }
 
 
-void dangerValueCheck(float tempVal, float pHVal, int foodLevel ) {
+void dangerValueCheck(float tempVal, float pHVal) {
 
-    String msg;
-
+    String s1;
+    String s2;
+    
     // water tempurature value check
     if (tempVal >= MAX_TEMP) {
-        msg = "High water temperature detected. Measured value: " + String(tempVal) + " deg-F";
-        wiqtt.sendPushAlert(msg);
+        s1 = "High water temperature detected. Measured value: " + String(tempVal) + " deg-F";
     }
     else if (tempVal <= MIN_TEMP) {
-        msg = "Low water temperature detected. Measured value: " + String(tempVal) + " deg-F";
-        wiqtt.sendPushAlert(msg);
+        s1 = "Low water temperature detected. Measured value: " + String(tempVal) + " deg-F";
     }
     
     // pH value check
     if (pHVal >= MAX_PH) {
-        msg = "High water pH detected. Measured value: " + String(pHVal);
-        wiqtt.sendPushAlert(msg);
+        s2 = "High water pH detected. Measured value: " + String(pHVal);
     }
     else if (pHVal <= MIN_PH) {
-        msg = "Low water pH detected. Measured value: " + String(pHVal);
-        wiqtt.sendPushAlert(msg);
+        s2 = "Low water pH detected. Measured value: " + String(pHVal);
     }
-    
-    // food level check
-    if (foodLevel == 0) {
-        msg = "Low food level detected, refill food hopper";
-        wiqtt.sendPushAlert(msg);
+
+    // needed after push notifications
+    if (s1.length() != 0) {
+      wiqtt.sendPushAlert(s1);
     }
+    if (s2.length() != 0) {
+      wiqtt.sendPushAlert(s2);
+    }
+
+    wiqtt.MQTTreconnect();
     return;
 }
 
@@ -204,7 +208,6 @@ int getTime(){
   } else {
     current_min = String(timeinfo.tm_min);
   }
-  
   current_hour = current_hour + current_min;
   return current_hour.toInt();
 }
@@ -221,8 +224,6 @@ int getTimeDiff(int time1, int time2){
     time2_adj = 2400 - time2;
     diff = time1 + time2_adj;
   }
-  //Serial.print("Time difference = ");
-  //Serial.println(diff);
   return diff;
 }
 
@@ -231,33 +232,23 @@ int getTimeDiff(int time1, int time2){
 // MAIN TASKS
 // ************
 
-void keepWifiConnected( void * parameter ){
-  // keep track of last wake
-  portTickType xLastWakeTime;
-  
-  // set delay period (50 seconds)
-  portTickType xPeriod = ( 50000 / portTICK_RATE_MS );
-  xLastWakeTime = xTaskGetTickCount ();
-    
-  for(;;){
-    vTaskDelayUntil( &xLastWakeTime, xPeriod ); // run every 5 seconds
-    Serial.println("checking wifi connection");
-    wiqtt.checkWificonnection();
-  }
-}
-
-void checkIncomingCmds( void * parameter ){
+// renamed from checkIncomingCmds to keepAliveMQTT
+void keepAliveMQTT( void * parameter ){
   // keep track of last wake
   portTickType xLastWakeTime;
 
-  // set delay period (4 seconds)
-  portTickType xPeriod = ( 4000 / portTICK_RATE_MS );
-  xLastWakeTime = xTaskGetTickCount ();
-  
+  // set delay period (250 ms)
+  portTickType xPeriod = ( 250 / portTICK_RATE_MS );
+
   for(;;){
-    vTaskDelayUntil( &xLastWakeTime, xPeriod ); // run every 5 seconds
-    Serial.println("calling wiqtt.loop()");
-    wiqtt.loop(); // triggers callback if needed
+    if (wiqtt.checkWificonnection()) {
+      xSemaphoreTake(mqtt_semaphore, portMAX_DELAY);
+      wiqtt.loop();
+      xSemaphoreGive(mqtt_semaphore);
+    } else {
+      wiqtt.connectToWifi();
+    }
+    vTaskDelay(xPeriod); // run every 250 ms
   } 
 }
 
@@ -271,10 +262,7 @@ void publishSensorVals( void * parameter ) {
   xLastWakeTime = xTaskGetTickCount ();
   
   for( ;; ) {
-    // Wait for the next cycle.
-    vTaskDelayUntil( &xLastWakeTime, xPeriod );
     Serial.println("Publishing new sensor values to broker");
-
 
     // get water temperature
     float temp_read = temperature.getTemp();
@@ -282,12 +270,18 @@ void publishSensorVals( void * parameter ) {
     Serial.println(temp_read);
 
     // get water pH
-    float pH_read = ph.getPH(25);//(temp_read-32)/1.8); //convert temperature to celcius
+    float pH_read = ph.getPH(25);//(temp_read-32)/1.8); //convert temperature to celcius TODO: replace for final submit
     Serial.print("pH sensor: ");
     Serial.println(pH_read);
 
     // publish data
+    xSemaphoreTake(mqtt_semaphore, portMAX_DELAY);
     wiqtt.publishSensorVals(temp_read, pH_read, getTime());
+    if (send_alert) dangerValueCheck(temp_read, pH_read);
+    xSemaphoreGive(mqtt_semaphore);
+    
+    // Wait for the next cycle.
+    vTaskDelayUntil( &xLastWakeTime, xPeriod );
   }
 }
 
@@ -295,15 +289,17 @@ void publishSensorVals( void * parameter ) {
 void dynamicLightingChange( void * parameter ) {
   portTickType xLastWakeTime;
   
-  int delay_in_ms = 1* 60 * 1000; // 10 minutes to ms //CHANGED TO 1 minute for testing
+  int delay_in_ms = 1* 60 * 1000; // 1 minute to ms
   portTickType xPeriod = ( delay_in_ms / portTICK_RATE_MS );
   xLastWakeTime = xTaskGetTickCount();
 
   for( ;; ) {
     vTaskDelay(xPeriod );
-    Serial.println("Dynamic lighting change");
-    leds.updateDynamicColor(getTime());
+    if (!leds_off) {
+      Serial.println("Dynamic lighting change");
+      leds.updateDynamicColor(getTime());
     }
+  }
 }
 
 
@@ -327,17 +323,11 @@ void autoFeedChange( void *pvParameters ) {
       }
 
       bool food_level = ir.getFoodLevel() == 1;
+      xSemaphoreTake(mqtt_semaphore, portMAX_DELAY);
       wiqtt.publishFoodLevel(food_level);
-
+      xSemaphoreGive(mqtt_semaphore);
+      
       previous_feed_time = getTime();
-      Preferences preferences;
-      preferences.begin("saved-values", false);
-      preferences.putInt("previous_feed_time", previous_feed_time);
-      preferences.end();
-
-    }
-    else{
-      Serial.println("Unable to auto feed, time interval too close.");
     }
     vTaskDelay( xPeriod );
   }
@@ -353,35 +343,32 @@ void feedCmdTask( void *pvParameters){
   for ( ;; ) {
     xSemaphoreTake(feed_semaphore, portMAX_DELAY);
     Serial.println("Feed button pressed");
-    if((previous_feed_time == -1) || (getTimeDiff(getTime(), previous_feed_time) > MIN_FEED_INTERVAL)){
+    if((previous_feed_time == -1) || (getTimeDiff(getTime(), previous_feed_time) >= MIN_FEED_INTERVAL)){
       
       int temp_num = num_of_fish;
       num_of_fish = atoi(CMD_PAYLOAD);
+      Serial.print(num_of_fish);
       
       for(int i = 0; i < num_of_fish; i++) {
-        si.fullRotation(1000); // TODO: calibrate this for flaky fish food
+        si.fullRotation(1000);
       }
       
       // update dashboard food levels
-      bool food_level = ir.getFoodLevel() == 1;
-      wiqtt.publishFoodLevel(food_level);
+      bool food_level = ir.getFoodLevel();
 
+      xSemaphoreTake(mqtt_semaphore, portMAX_DELAY);
+      wiqtt.publishFoodLevel(food_level == 1);
+      xSemaphoreGive(mqtt_semaphore);
+      
       previous_feed_time = getTime();
-
-      // save to non-volitle memory as needed
-      Preferences preferences;
-      preferences.begin("saved-values", false);
-      preferences.putInt("previous_feed_time", previous_feed_time);
-      if (temp_num != num_of_fish) {        
-        preferences.putInt("num_of_fish", num_of_fish);
-      }
-      preferences.end();
-
-
+      
     }
     else{
       Serial.println("Unable to feed, time interval too close.");
+      xSemaphoreTake(mqtt_semaphore, portMAX_DELAY);
       wiqtt.sendPushAlert("Unable to feed, you already fed your fish today!");
+      wiqtt.MQTTreconnect();
+      xSemaphoreGive(mqtt_semaphore);
     }
   }
 
@@ -396,7 +383,18 @@ void ledCmdTask( void *pvParameters ) {
     int r = atoi(strtok(CMD_PAYLOAD, ","));
     int g = atoi(strtok(NULL, ","));
     int b = atoi(strtok(NULL, ","));
-    leds.changeColor(r, g, b);
+    
+    if (r = -1) {
+      leds.updateDynamicColor(getTime());
+    } else {
+      leds.changeColor(r, g, b);
+    }
+
+    if (!r && !g && !b) {
+      leds_off = true;
+    } else {
+      leds_off = false;
+    }
   }
 }
 
@@ -427,6 +425,7 @@ void settingCmdTaskAutofeed( void *pvParameters ) {
   }
 }
 
+
 void settingCmdTaskAutoled( void *pvParameters ) {
   for ( ;; ) {
     xSemaphoreTake(autoled_semaphore, portMAX_DELAY);
@@ -439,6 +438,7 @@ void settingCmdTaskAutoled( void *pvParameters ) {
       Serial.println("dynamic LED enabled");
       vTaskResume( dynamicLEDTask );
       dynamic_lighting = true;
+      leds.updateDynamicColor(getTime());
     }
     
     // save updated values to non-volitile memory
@@ -459,16 +459,18 @@ void settingCmdTaskAutoled( void *pvParameters ) {
  * @param length the legnth of the data receaved
  */
 void callback(char* topic, byte* payload, unsigned int length) {
+
+    Serial.println("in callback");
   
     // save payload to CMD_PAYLOAD
     // need to use a mutex for the payload so that the cmd tasks are not reading while this is writting
     int i = 0;
-    xSemaphoreTake(payload_mutex, portMAX_DELAY);
+    //xSemaphoreTake(payload_mutex, portMAX_DELAY);
     for (; i < length; i++) {
       CMD_PAYLOAD[i] = (char) payload[i];
     }
     CMD_PAYLOAD[i] = '\0';
-    xSemaphoreGive(payload_mutex);
+    //xSemaphoreGive(payload_mutex);
     
     // FEEDING CMDS
     String topic_str = String(topic);
@@ -506,27 +508,17 @@ void taskCreation() {
     "publish sensor vals",
     10000,
     NULL,
-    2, // this task is NOT vital for correct system operation
+    3, // this task is NOT vital for correct system operation
     NULL,
     1
     );                             
 
   xTaskCreatePinnedToCore(
-    keepWifiConnected,
-    "keep wifi connected",
-    10000,
-    NULL,
-    3, // this task is VERY vital for correct system operation
-    NULL,
-    1
-    );                             
-
-  xTaskCreatePinnedToCore(
-    checkIncomingCmds,
+    keepAliveMQTT,
     "check Incoming MQTT msgs",
     10000,
     NULL,
-    2, // this task is vital for correct system operation
+    4, // this task is vital for correct system operation
     NULL,
     1
     );                             
@@ -592,26 +584,30 @@ void taskCreation() {
     );
 
   // suspend the dynamic lighting task until dynamic lighting is enabled by the user
-  if (!dynamic_lighting) {
+  //if (!dynamic_lighting) {
     vTaskSuspend(dynamicLEDTask);
-  }
+  //}
 
   // suspend the auto feed task until auto feed is enabled by the user
-  if (!auto_feed) {
-    vTaskSuspend(autoFeedTask);
-  }
+  //if (!auto_feed) {
+   vTaskSuspend(autoFeedTask);
+  //}
 }
 
 
 void setup() {
   Serial.begin(115200); 
-  
+
   // create semaphores and mutex
   feed_semaphore = xSemaphoreCreateBinary();
   led_semaphore = xSemaphoreCreateBinary();
   autoled_semaphore = xSemaphoreCreateBinary();
   autofeed_semaphore = xSemaphoreCreateBinary();
+  mqtt_semaphore = xSemaphoreCreateBinary();
   payload_mutex = xSemaphoreCreateMutex();
+
+
+  xSemaphoreGive(mqtt_semaphore);
 
   load_settings();
 
@@ -629,6 +625,7 @@ void setup() {
   // init servo
   si.init(SERVO_PIN);
 
+  
   // turn on front light
   wiqtt.ledSetup(wifiLedPin);
 
@@ -653,7 +650,6 @@ void setup() {
   // create tasks
   Serial.println("Creating Tasks");
   taskCreation();
-  
 }
 
 void loop() { 

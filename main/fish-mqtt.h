@@ -95,10 +95,12 @@ class FishMqtt : public PubSubClient {
 
 
 		/**
-		 * @brief Checks wifi connection and reconnects if needed
+		 * @brief Checks wifi connection
 		 * 
+		 * @return true wifi is still connected
+		 * @return false wifi is no longer connected
 		 */
-		void checkWificonnection();
+		bool checkWificonnection();
 
 
 		/**
@@ -143,6 +145,9 @@ class FishMqtt : public PubSubClient {
 		 * @param msg message to be included in the notification
 		 */
 		void sendPushAlert(String msg);
+
+
+   void sendPushAlert(String msg1, String msg2);
 };
 
 #endif

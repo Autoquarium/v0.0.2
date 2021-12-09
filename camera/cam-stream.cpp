@@ -41,8 +41,8 @@ void CamStream::configCamera(const char* ssid, const char* password){
     config.xclk_freq_hz = 20000000; //EXPERIMENTAL: Set to 16MHz on ESP32-S2 or ESP32-S3 to enable EDMA mode
     config.pixel_format = PIXFORMAT_JPEG; //YUV422,GRAYSCALE,RGB565,JPEG
 
-    config.frame_size = FRAMESIZE_QVGA; //QQVGA-QXGA Do not use sizes above QVGA when not JPEG
-    config.jpeg_quality = 40; //0-63 lower number means higher quality
+    config.frame_size = FRAMESIZE_UXGA; //QQVGA-QXGA Do not use sizes above QVGA when not JPEG
+    config.jpeg_quality = 15; //0-63 lower number means higher quality
     config.fb_count = 1; //if more than one, i2s runs in continuous mode. Use only with JPEG
 
     esp_err_t err = esp_camera_init(&config);
@@ -50,6 +50,10 @@ void CamStream::configCamera(const char* ssid, const char* password){
         Serial.printf("Camera init failed with error 0x%x", err);
         return;
     }
+    sensor_t * s = esp_camera_sensor_get();
+    s->set_vflip(s, 1);          // 0 = disable , 1 = enable
+    s->set_saturation(s, 2);     // -2 to 2
+    s->set_whitebal(s, 1);       // 0 = disable , 1 = enable
 }
 
 //continue sending camera frame
