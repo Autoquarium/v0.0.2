@@ -3,7 +3,7 @@
 CamStream cam;
 
 void setup() {
-  cam.configCamera();
+  cam.configCamera("Fishwifi", "fishfood");
 }
  void loop() {
    cam.http_resp();
