@@ -13,7 +13,7 @@
 
 
 // FOR TESTING: change device ID if you're working on the non-production device
-String device_id = "autoq-prod"; 
+String device_id = "autoq-prod";; 
 
 
 // semaphores for subscribed MQTT cmds - USE BINARY SEMAPHORES BECAUSE WE ARE TRIGGERING ANOTHER TASK TO RUN
@@ -39,7 +39,7 @@ bool send_alert = false;
 const int MAX_TEMP  = 90;
 const int MIN_TEMP = 70;
 const int MAX_PH = 9;
-const int MIN_PH = 4;
+const int MIN_PH = 5;
 
 
 // pH sensor
@@ -122,7 +122,7 @@ void load_settings() {
   gmtOffset_sec = preferences.getInt("time_zone", -5)*60*60;
   
   // recover saved setting
-  publish_interval = preferences.getInt("publish_interval", 2);
+  publish_interval = preferences.getInt("publish_interval", 5);
   num_of_fish = preferences.getInt("num_of_fish", 1);
   dynamic_lighting = preferences.getBool("dynamic_lighting", false);
   auto_feed = preferences.getBool("auto_feed", false);
@@ -148,10 +148,10 @@ void dangerValueCheck(float tempVal, float pHVal) {
     String s2;
     
     // water tempurature value check
-    if (tempVal >= MAX_TEMP) {
+    if (tempVal >= MAX_TEMP && tempVal < 150) {
         s1 = "High water temperature detected. Measured value: " + String(tempVal) + " deg-F";
     }
-    else if (tempVal <= MIN_TEMP) {
+    else if (tempVal <= MIN_TEMP && tempVal > 0) {
         s1 = "Low water temperature detected. Measured value: " + String(tempVal) + " deg-F";
     }
     
