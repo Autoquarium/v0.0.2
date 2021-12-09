@@ -49,12 +49,23 @@ const int PH_PIN = 33;    //pH sensor gpio pin
 DFRobotESPpH ph;
 
 // LCD pins
-const int TFT_CS = 23;
-const int TFT_RST = 22;
-const int TFT_DC = 21;
-const int TFT_MOSI = 19;           
+
+// old pins
+/*
+const int TFT_DC = 17;
+const int TFT_CS = 15;
+const int TFT_RST = 5;
+const int TFT_MISO = 19;         
+const int TFT_MOSI = 23;           
 const int TFT_CLK = 18;
-const int TFT_MISO = 5; 
+*/
+
+const int TFT_CS = 22;
+const int TFT_RST = 5;
+const int TFT_DC = 21;
+const int TFT_MOSI = 23;           
+const int TFT_CLK = 18;
+const int TFT_MISO = 19; 
 
 LCD lcd;
 TempSensor temperature;
@@ -629,9 +640,9 @@ void setup() {
 
   // init wifi and MQTT
   wiqtt.setDeviceId(device_id);
-  wiqtt.connectToWifi();
-  wiqtt.setupMQTT();
-  wiqtt.setCallback(callback);
+  //wiqtt.connectToWifi();
+  //wiqtt.setupMQTT();
+  //wiqtt.setCallback(callback);
 
   // Setup clock
   configTime(gmtOffset_sec, 0, "pool.ntp.org");
@@ -642,4 +653,7 @@ void setup() {
 }
 
 void loop() { 
+    ph.calibration();
+   //ph.getPH(25);
+    //delay(1000);
 }
