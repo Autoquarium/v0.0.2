@@ -43,6 +43,7 @@ $(function() {
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pri-methods">Private Member Functions</a> &#124;
 <a href="class_d_f_robot_e_s_pp_h-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">DFRobotESPpH Class Reference</div></div>
 </div><!--header-->
@@ -87,6 +88,21 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>manualCalibration</b>
 <tr class="memitem:a49febf1aa6d86ce5b817b987a304d03e"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_d_f_robot_e_s_pp_h.html#a49febf1aa6d86ce5b817b987a304d03e">getPH</a> (float temp_in)</td></tr>
 <tr class="memdesc:a49febf1aa6d86ce5b817b987a304d03e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves the pH value of the tank/solution.  <a href="class_d_f_robot_e_s_pp_h.html#a49febf1aa6d86ce5b817b987a304d03e">More...</a><br /></td></tr>
 <tr class="separator:a49febf1aa6d86ce5b817b987a304d03e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-methods" name="pri-methods"></a>
+Private Member Functions</h2></td></tr>
+<tr class="memitem:abbc6c061a9385c1f4b4d648bb1df1802"><td class="memItemLeft" align="right" valign="top">boolean&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_d_f_robot_e_s_pp_h.html#abbc6c061a9385c1f4b4d648bb1df1802">cmdSerialDataAvailable</a> ()</td></tr>
+<tr class="memdesc:abbc6c061a9385c1f4b4d648bb1df1802"><td class="mdescLeft">&#160;</td><td class="mdescRight">checks to see if serial data is available  <a href="class_d_f_robot_e_s_pp_h.html#abbc6c061a9385c1f4b4d648bb1df1802">More...</a><br /></td></tr>
+<tr class="separator:abbc6c061a9385c1f4b4d648bb1df1802"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa2ec446a4700eab85ad8192bd4ff3b67"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_d_f_robot_e_s_pp_h.html#aa2ec446a4700eab85ad8192bd4ff3b67">phCalibration</a> (byte mode)</td></tr>
+<tr class="memdesc:aa2ec446a4700eab85ad8192bd4ff3b67"><td class="mdescLeft">&#160;</td><td class="mdescRight">calibration process, writes key parameters to EEPROM  <a href="class_d_f_robot_e_s_pp_h.html#aa2ec446a4700eab85ad8192bd4ff3b67">More...</a><br /></td></tr>
+<tr class="separator:aa2ec446a4700eab85ad8192bd4ff3b67"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a88d7bc9e820a382eb1ada0fc7038244c"><td class="memItemLeft" align="right" valign="top">byte&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_d_f_robot_e_s_pp_h.html#a88d7bc9e820a382eb1ada0fc7038244c">cmdParse</a> (const char *cmd)</td></tr>
+<tr class="memdesc:a88d7bc9e820a382eb1ada0fc7038244c"><td class="mdescLeft">&#160;</td><td class="mdescRight">parses incoming serial command  <a href="class_d_f_robot_e_s_pp_h.html#a88d7bc9e820a382eb1ada0fc7038244c">More...</a><br /></td></tr>
+<tr class="separator:a88d7bc9e820a382eb1ada0fc7038244c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a82096eb73b8d100a0735cf229a3de530"><td class="memItemLeft" align="right" valign="top">byte&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_d_f_robot_e_s_pp_h.html#a82096eb73b8d100a0735cf229a3de530">cmdParse</a> ()</td></tr>
+<tr class="memdesc:a82096eb73b8d100a0735cf229a3de530"><td class="mdescLeft">&#160;</td><td class="mdescRight">parses incoming serial command  <a href="class_d_f_robot_e_s_pp_h.html#a82096eb73b8d100a0735cf229a3de530">More...</a><br /></td></tr>
+<tr class="separator:a82096eb73b8d100a0735cf229a3de530"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Member Function Documentation</h2>
 <a id="ac716110722e87e8d0753b25d1b948f83" name="ac716110722e87e8d0753b25d1b948f83"></a>
@@ -132,6 +148,97 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>manualCalibration</b>
   </table>
   </dd>
 </dl>
+
+</div>
+</div>
+<a id="a82096eb73b8d100a0735cf229a3de530" name="a82096eb73b8d100a0735cf229a3de530"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a82096eb73b8d100a0735cf229a3de530">&#9670;&nbsp;</a></span>cmdParse() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">byte DFRobotESPpH::cmdParse </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>parses incoming serial command </p>
+<dl class="section return"><dt>Returns</dt><dd>byte the parsed command </dd></dl>
+
+</div>
+</div>
+<a id="a88d7bc9e820a382eb1ada0fc7038244c" name="a88d7bc9e820a382eb1ada0fc7038244c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a88d7bc9e820a382eb1ada0fc7038244c">&#9670;&nbsp;</a></span>cmdParse() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">byte DFRobotESPpH::cmdParse </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>cmd</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>parses incoming serial command </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">cmd</td><td>the serial command entered by user </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>byte the parsed command </dd></dl>
+
+</div>
+</div>
+<a id="abbc6c061a9385c1f4b4d648bb1df1802" name="abbc6c061a9385c1f4b4d648bb1df1802"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abbc6c061a9385c1f4b4d648bb1df1802">&#9670;&nbsp;</a></span>cmdSerialDataAvailable()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">boolean DFRobotESPpH::cmdSerialDataAvailable </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>checks to see if serial data is available </p>
+<dl class="section return"><dt>Returns</dt><dd>boolean true if serial data is available, false otherwise </dd></dl>
 
 </div>
 </div>
@@ -257,6 +364,40 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>manualCalibration</b>
   <table class="params">
     <tr><td class="paramname">voltage7</td><td>Voltage value of pH sensor when submerged in pH 7 buffer solution </td></tr>
     <tr><td class="paramname">voltage4</td><td>Voltage value of pH sensor when submerged in pH 4 buffer solution </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="aa2ec446a4700eab85ad8192bd4ff3b67" name="aa2ec446a4700eab85ad8192bd4ff3b67"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa2ec446a4700eab85ad8192bd4ff3b67">&#9670;&nbsp;</a></span>phCalibration()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void DFRobotESPpH::phCalibration </td>
+          <td>(</td>
+          <td class="paramtype">byte&#160;</td>
+          <td class="paramname"><em>mode</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>calibration process, writes key parameters to EEPROM </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">mode</td><td>the calibration mode inputted by the user </td></tr>
   </table>
   </dd>
 </dl>

@@ -43,6 +43,7 @@ $(function() {
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pri-methods">Private Member Functions</a> &#124;
 <a href="class_l_e_d_array-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">LEDArray Class Reference</div></div>
 </div><!--header-->
@@ -59,6 +60,30 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:aedf3609895ba83a34e57d5b8e63f1751"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_l_e_d_array.html#aedf3609895ba83a34e57d5b8e63f1751">updateDynamicColor</a> (int currentTime)</td></tr>
 <tr class="memdesc:aedf3609895ba83a34e57d5b8e63f1751"><td class="mdescLeft">&#160;</td><td class="mdescRight">Updates color blend based on the time of day Mimics a sunrise-day-sunset-night cycle.  <a href="class_l_e_d_array.html#aedf3609895ba83a34e57d5b8e63f1751">More...</a><br /></td></tr>
 <tr class="separator:aedf3609895ba83a34e57d5b8e63f1751"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-methods" name="pri-methods"></a>
+Private Member Functions</h2></td></tr>
+<tr class="memitem:ab54ae542c43473d9ade487a6ea051146"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_l_e_d_array.html#ab54ae542c43473d9ade487a6ea051146">fadeToBlack</a> (int delayIn)</td></tr>
+<tr class="memdesc:ab54ae542c43473d9ade487a6ea051146"><td class="mdescLeft">&#160;</td><td class="mdescRight">Turns off the LEDs by "fading to black".  <a href="class_l_e_d_array.html#ab54ae542c43473d9ade487a6ea051146">More...</a><br /></td></tr>
+<tr class="separator:ab54ae542c43473d9ade487a6ea051146"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac715c168c3a3f909e01d8dc18323f420"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_l_e_d_array.html#ac715c168c3a3f909e01d8dc18323f420">setHSVColor</a> (int h, int s, int v)</td></tr>
+<tr class="memdesc:ac715c168c3a3f909e01d8dc18323f420"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the hue/saturation/value of the lights Would prefer if this function was not used (does not update currentRGB)  <a href="class_l_e_d_array.html#ac715c168c3a3f909e01d8dc18323f420">More...</a><br /></td></tr>
+<tr class="separator:ac715c168c3a3f909e01d8dc18323f420"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4534944e74fd43e5c31549ff31b72880"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_l_e_d_array.html#a4534944e74fd43e5c31549ff31b72880">setRGBColor</a> (int r, int g, int b)</td></tr>
+<tr class="memdesc:a4534944e74fd43e5c31549ff31b72880"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the RGB color of the lights.  <a href="class_l_e_d_array.html#a4534944e74fd43e5c31549ff31b72880">More...</a><br /></td></tr>
+<tr class="separator:a4534944e74fd43e5c31549ff31b72880"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a69a1bef0dd00bcc2e3da86771e1b9999"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_l_e_d_array.html#a69a1bef0dd00bcc2e3da86771e1b9999">setRGBColor</a> (CRGB color)</td></tr>
+<tr class="memdesc:a69a1bef0dd00bcc2e3da86771e1b9999"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the RGB color of the lights.  <a href="class_l_e_d_array.html#a69a1bef0dd00bcc2e3da86771e1b9999">More...</a><br /></td></tr>
+<tr class="separator:a69a1bef0dd00bcc2e3da86771e1b9999"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae9e2669d41c9a1fb227d058c373589b6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_l_e_d_array.html#ae9e2669d41c9a1fb227d058c373589b6">colorTransition</a> (int r1, int g1, int b1, int r2, int g2, int b2, int delayIn)</td></tr>
+<tr class="memdesc:ae9e2669d41c9a1fb227d058c373589b6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Transitions the color of the LEDs from RGB1 to RGB2.  <a href="class_l_e_d_array.html#ae9e2669d41c9a1fb227d058c373589b6">More...</a><br /></td></tr>
+<tr class="separator:ae9e2669d41c9a1fb227d058c373589b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7fe7bb920f3643272adbd8b54d371ffd"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_l_e_d_array.html#a7fe7bb920f3643272adbd8b54d371ffd">colorTransition</a> (CRGB color1, CRGB color2, int delayIn)</td></tr>
+<tr class="memdesc:a7fe7bb920f3643272adbd8b54d371ffd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Transitions the color of the LEDs from RGB1 to RGB2.  <a href="class_l_e_d_array.html#a7fe7bb920f3643272adbd8b54d371ffd">More...</a><br /></td></tr>
+<tr class="separator:a7fe7bb920f3643272adbd8b54d371ffd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac029558d0bda1334a6d7e2526e2c1307"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_l_e_d_array.html#ac029558d0bda1334a6d7e2526e2c1307">createColorCycle</a> (int startColorVal[], int endColorVal[], int delayIn)</td></tr>
+<tr class="memdesc:ac029558d0bda1334a6d7e2526e2c1307"><td class="mdescLeft">&#160;</td><td class="mdescRight">Transitions from startColorVal to endColorVal, holds endColorVal for delayIn, then transitions back to startColorVal.  <a href="class_l_e_d_array.html#ac029558d0bda1334a6d7e2526e2c1307">More...</a><br /></td></tr>
+<tr class="separator:ac029558d0bda1334a6d7e2526e2c1307"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Member Function Documentation</h2>
 <a id="a2fb3b7cebcda182380367fe884412e62" name="a2fb3b7cebcda182380367fe884412e62"></a>
@@ -105,6 +130,224 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="a7fe7bb920f3643272adbd8b54d371ffd" name="a7fe7bb920f3643272adbd8b54d371ffd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7fe7bb920f3643272adbd8b54d371ffd">&#9670;&nbsp;</a></span>colorTransition() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void LEDArray::colorTransition </td>
+          <td>(</td>
+          <td class="paramtype">CRGB&#160;</td>
+          <td class="paramname"><em>color1</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">CRGB&#160;</td>
+          <td class="paramname"><em>color2</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>delayIn</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Transitions the color of the LEDs from RGB1 to RGB2. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">color1</td><td>LEDs change to this color when called </td></tr>
+    <tr><td class="paramname">color2</td><td>LEDs fade to this color over time delayIn </td></tr>
+    <tr><td class="paramname">delayIn</td><td>Time it will take the LEDs to fade from RGB1 to RGB2 in milliseconds Affects the smoothness of the transition </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="ae9e2669d41c9a1fb227d058c373589b6" name="ae9e2669d41c9a1fb227d058c373589b6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae9e2669d41c9a1fb227d058c373589b6">&#9670;&nbsp;</a></span>colorTransition() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void LEDArray::colorTransition </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>r1</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>g1</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>b1</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>r2</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>g2</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>b2</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>delayIn</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Transitions the color of the LEDs from RGB1 to RGB2. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">r1</td><td>REQUIRES: 0 &lt;= r1 &lt;= 255 </td></tr>
+    <tr><td class="paramname">g1</td><td>REQUIRES: 0 &lt;= g1 &lt;= 255 </td></tr>
+    <tr><td class="paramname">b1</td><td>REQUIRES: 0 &lt;= b1 &lt;= 255 </td></tr>
+    <tr><td class="paramname">r2</td><td>REQUIRES: 0 &lt;= r2 &lt;= 255 </td></tr>
+    <tr><td class="paramname">g2</td><td>REQUIRES: 0 &lt;= g2 &lt;= 255 </td></tr>
+    <tr><td class="paramname">b2</td><td>REQUIRES: 0 &lt;= b2 &lt;= 255 </td></tr>
+    <tr><td class="paramname">delayIn</td><td>Time it will take the LEDs to fade from RGB1 to RGB2 in milliseconds Affects the smoothness of the transition </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="ac029558d0bda1334a6d7e2526e2c1307" name="ac029558d0bda1334a6d7e2526e2c1307"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac029558d0bda1334a6d7e2526e2c1307">&#9670;&nbsp;</a></span>createColorCycle()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void LEDArray::createColorCycle </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>startColorVal</em>[], </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>endColorVal</em>[], </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>delayIn</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Transitions from startColorVal to endColorVal, holds endColorVal for delayIn, then transitions back to startColorVal. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">startColorVal</td><td>REQUIRES: 0 &lt;= startColorVal[i] &lt;= 255 </td></tr>
+    <tr><td class="paramname">endColorVal</td><td>REQUIRES: 0 &lt;= endColorVal[i] &lt;= 255 </td></tr>
+    <tr><td class="paramname">delayIn</td><td>Time that the LEDs will hold endColorVal in milliseconds </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="ab54ae542c43473d9ade487a6ea051146" name="ab54ae542c43473d9ade487a6ea051146"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab54ae542c43473d9ade487a6ea051146">&#9670;&nbsp;</a></span>fadeToBlack()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void LEDArray::fadeToBlack </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>delayIn</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Turns off the LEDs by "fading to black". </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">delayIn</td><td>Time it will take the LEDs to fade to black in milliseconds Affects the smoothness of the transition </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a id="ab74bb4317c789d719d30fcaf2fe895a7" name="ab74bb4317c789d719d30fcaf2fe895a7"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ab74bb4317c789d719d30fcaf2fe895a7">&#9670;&nbsp;</a></span>init()</h2>
 
@@ -136,6 +379,144 @@ Public Member Functions</h2></td></tr>
   <table class="params">
     <tr><td class="paramname">numLEDsIn</td><td>Number of lights of the strip to be turned on REQUIRES: numLEDsIn &lt;= 300 </td></tr>
     <tr><td class="paramname">ledPinIn</td><td>IO pin that data will be sent across to control the LEDs </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="ac715c168c3a3f909e01d8dc18323f420" name="ac715c168c3a3f909e01d8dc18323f420"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac715c168c3a3f909e01d8dc18323f420">&#9670;&nbsp;</a></span>setHSVColor()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void LEDArray::setHSVColor </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>h</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>s</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>v</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Sets the hue/saturation/value of the lights Would prefer if this function was not used (does not update currentRGB) </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">h</td><td>hue (color range shown in FastLED documentation) REQUIRES: 0 &lt;= h &lt;= 255 </td></tr>
+    <tr><td class="paramname">s</td><td>saturation REQUIRES: 0 &lt;= h &lt;= 255 </td></tr>
+    <tr><td class="paramname">v</td><td>brightness REQUIRES: 0 &lt;= h &lt;= 255 </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a69a1bef0dd00bcc2e3da86771e1b9999" name="a69a1bef0dd00bcc2e3da86771e1b9999"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a69a1bef0dd00bcc2e3da86771e1b9999">&#9670;&nbsp;</a></span>setRGBColor() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void LEDArray::setRGBColor </td>
+          <td>(</td>
+          <td class="paramtype">CRGB&#160;</td>
+          <td class="paramname"><em>color</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Sets the RGB color of the lights. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">color</td><td>is of type CRGB from FastLED </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a4534944e74fd43e5c31549ff31b72880" name="a4534944e74fd43e5c31549ff31b72880"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4534944e74fd43e5c31549ff31b72880">&#9670;&nbsp;</a></span>setRGBColor() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void LEDArray::setRGBColor </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>r</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>g</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>b</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Sets the RGB color of the lights. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">r</td><td>red value intensity REQUIRES: 0 &lt;= r &lt;= 255 </td></tr>
+    <tr><td class="paramname">g</td><td>green value intensity REQUIRES: 0 &lt;= g &lt;= 255 </td></tr>
+    <tr><td class="paramname">b</td><td>blue value intensity REQUIRES: 0 &lt;= b &lt;= 255 </td></tr>
   </table>
   </dd>
 </dl>

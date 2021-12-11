@@ -43,6 +43,7 @@ $(function() {
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pri-methods">Private Member Functions</a> &#124;
 <a href="class_l_c_d-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">LCD Class Reference</div></div>
 </div><!--header-->
@@ -60,6 +61,12 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:af7b4afff6cc60ad1a5422e3bc20efc15"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_l_c_d.html#af7b4afff6cc60ad1a5422e3bc20efc15">updateLCD</a> (float tempVal, float pHVal, int foodLevel, int numFish)</td></tr>
 <tr class="memdesc:af7b4afff6cc60ad1a5422e3bc20efc15"><td class="mdescLeft">&#160;</td><td class="mdescRight">Updates <a class="el" href="class_l_c_d.html">LCD</a> screen with data.  <a href="class_l_c_d.html#af7b4afff6cc60ad1a5422e3bc20efc15">More...</a><br /></td></tr>
 <tr class="separator:af7b4afff6cc60ad1a5422e3bc20efc15"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-methods" name="pri-methods"></a>
+Private Member Functions</h2></td></tr>
+<tr class="memitem:a51e57a98876e1cb0206fec27bf43ef97"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_l_c_d.html#a51e57a98876e1cb0206fec27bf43ef97">printText</a> (String text, uint16_t color, int x, int y, int textSize)</td></tr>
+<tr class="memdesc:a51e57a98876e1cb0206fec27bf43ef97"><td class="mdescLeft">&#160;</td><td class="mdescRight">Helper function for printing text to <a class="el" href="class_l_c_d.html">LCD</a>.  <a href="class_l_c_d.html#a51e57a98876e1cb0206fec27bf43ef97">More...</a><br /></td></tr>
+<tr class="separator:a51e57a98876e1cb0206fec27bf43ef97"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Member Function Documentation</h2>
 <a id="ae3b43d282c8b1e9dca95cbd64cfabea6" name="ae3b43d282c8b1e9dca95cbd64cfabea6"></a>
@@ -121,6 +128,72 @@ Public Member Functions</h2></td></tr>
     <tr><td class="paramname">TFT_CLK</td><td>clock pin </td></tr>
     <tr><td class="paramname">TFT_RST</td><td>reset pin </td></tr>
     <tr><td class="paramname">TFT_MISO</td><td>multiple input single output pin </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a51e57a98876e1cb0206fec27bf43ef97" name="a51e57a98876e1cb0206fec27bf43ef97"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a51e57a98876e1cb0206fec27bf43ef97">&#9670;&nbsp;</a></span>printText()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void LCD::printText </td>
+          <td>(</td>
+          <td class="paramtype">String&#160;</td>
+          <td class="paramname"><em>text</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint16_t&#160;</td>
+          <td class="paramname"><em>color</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>x</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>y</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>textSize</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Helper function for printing text to <a class="el" href="class_l_c_d.html">LCD</a>. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">text</td><td>the message to be printed </td></tr>
+    <tr><td class="paramname">color</td><td>the color of the message </td></tr>
+    <tr><td class="paramname">x</td><td>horizontal position of the message </td></tr>
+    <tr><td class="paramname">y</td><td>vertical position of message </td></tr>
+    <tr><td class="paramname">textSize</td><td>the size of the text to be displaced on <a class="el" href="class_l_c_d.html">LCD</a> </td></tr>
   </table>
   </dd>
 </dl>
