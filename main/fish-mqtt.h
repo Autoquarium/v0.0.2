@@ -144,9 +144,6 @@ class FishMqtt : public PubSubClient {
 		 * @param msg message to be included in the notification
 		 */
 		void sendPushAlert(String msg);
-
-
-   void sendPushAlert(String msg1, String msg2);
 };
 
 #endif
