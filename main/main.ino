@@ -248,6 +248,7 @@ void keepAliveMQTT( void * parameter ){
       xSemaphoreGive(mqtt_semaphore);
     } else {
       wiqtt.connectToWifi();
+      wiqtt.MQTTreconnect();
     }
     vTaskDelay(xPeriod); // run every 250 ms
   } 
@@ -298,10 +299,7 @@ void dynamicLightingChange( void * parameter ) {
 
   for( ;; ) {
     vTaskDelay(xPeriod );
-    if (!leds_off) {
-      Serial.println("Dynamic lighting change");
-      leds.updateDynamicColor(getTime());
-    }
+    leds.updateDynamicColor(getTime());
   }
 }
 
@@ -386,18 +384,8 @@ void ledCmdTask( void *pvParameters ) {
     int r = atoi(strtok(CMD_PAYLOAD, ","));
     int g = atoi(strtok(NULL, ","));
     int b = atoi(strtok(NULL, ","));
-    
-    if (r = -1) {
-      leds.updateDynamicColor(getTime());
-    } else {
-      leds.changeColor(r, g, b);
-    }
 
-    if (!r && !g && !b) {
-      leds_off = true;
-    } else {
-      leds_off = false;
-    }
+    leds.changeColor(r, g, b);
   }
 }
 
@@ -463,7 +451,6 @@ void settingCmdTaskAutoled( void *pvParameters ) {
  */
 void callback(char* topic, byte* payload, unsigned int length) {
 
-    Serial.println("in callback");
   
     // save payload to CMD_PAYLOAD
     // need to use a mutex for the payload so that the cmd tasks are not reading while this is writting
@@ -541,7 +528,7 @@ void taskCreation() {
     "changes LED color",
     10000,
     NULL,
-    1, // not time sensitive
+    2, // not time sensitive
     NULL,
     1
     );                             
@@ -643,9 +630,9 @@ void setup() {
 
   // init wifi and MQTT
   wiqtt.setDeviceId(device_id);
-  //wiqtt.connectToWifi();
-  //wiqtt.setupMQTT();
-  //wiqtt.setCallback(callback);
+  wiqtt.connectToWifi();
+  wiqtt.setupMQTT();
+  wiqtt.setCallback(callback);
 
   // Setup clock
   configTime(gmtOffset_sec, 0, "pool.ntp.org");
@@ -656,7 +643,5 @@ void setup() {
 }
 
 void loop() { 
-    ph.calibration();
-   //ph.getPH(25);
-    //delay(1000);
+  //ph.calibration();
 }
