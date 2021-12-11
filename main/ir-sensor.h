@@ -9,7 +9,11 @@ class IRSensor {
     int ledPin;
     int IR_THRESHOLD;
 
-    /*Sets LED pin on, reads voltage from ADC, sets LED pin off*/
+    /**
+     * @brief Reads voltage from ADC
+     * 
+     * @return int voltage of IR sensor
+     */
     int readVoltage();
 
   public:

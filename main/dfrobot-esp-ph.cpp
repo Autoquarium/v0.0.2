@@ -19,26 +19,13 @@
  */
 #include "dfrobot-esp-ph.h"
 
-
-/**
- * @brief Initializes the pH sensor/hardware and assigns it the proper pins
- * 
- * @param PH_PIN_in Input for pH sensor on ESP32
- * @param ESPADC_in Input for ADC from ESP32
- * @param ESPVOLTAGE_in Input for ESP32 Voltage source
- */
 void DFRobotESPpH::init(int PH_PIN_in, float ESPADC_in, int ESPVOLTAGE_in) {
     PH_PIN = PH_PIN_in;
     ESPADC = ESPADC_in;
     ESPVOLTAGE = ESPVOLTAGE_in;
 }
 
-/**
- * @brief Retrieves the pH value of the tank/solution
- * 
- * @param temp_in Temperature of tank(in Celsius?)
- * @return float
- */
+
 float DFRobotESPpH::getPH(float temp_in) {
     float voltage = analogRead(PH_PIN) / ESPADC * ESPVOLTAGE; // read the voltage
     Serial.println(voltage);
@@ -47,10 +34,7 @@ float DFRobotESPpH::getPH(float temp_in) {
     return readPH(voltage, temp_in); // convert voltage to pH with temperature compensation
 }
 
-/**
- * @brief Constructor that assigns default(neutral) values to pH sensor metrics
- * 
- */
+
 DFRobotESPpH::DFRobotESPpH()
 {
     this->_temperature = 25.0;
@@ -60,27 +44,17 @@ DFRobotESPpH::DFRobotESPpH()
     this->_voltage = 1348.68;
 }
 
-/**
- * @brief Destructor
- * 
- */
+
 DFRobotESPpH::~DFRobotESPpH()
 {
 }
 
-/**
- * @brief Gets the neutral voltage of tank/solution
- * 
- * @return float 
- */
+
 float DFRobotESPpH::get_neutralVoltage(){
 	return this->_neutralVoltage;
 }
 
-/**
- * @brief This is the startup function for the pH sensor. It gets everything ready so that the sensor can actually start to calibrate/read values
- * 
- */
+
 void DFRobotESPpH::begin()
 {
 	preferences.begin("pHVals", false);
@@ -103,13 +77,6 @@ void DFRobotESPpH::begin()
 	preferences.end();
 }
 
-/**
- * @brief Reads pH level of a given solution/water in fish tank
- * 
- * @param voltage // TODO
- * @param temperature temperature of the water
- * @return float 
- */
 float DFRobotESPpH::readPH(float voltage, float temperature) {
 
     float slope = (7.0 - 4.0) / ((this->_neutralVoltage - 1500.0) / 3.0 - (this->_acidVoltage - 1500.0) / 3.0);
@@ -118,11 +85,6 @@ float DFRobotESPpH::readPH(float voltage, float temperature) {
     return _phValue;
 }
 
-/**
- * @brief calibrates the pH sensor given a remote command
- * 
- * @param cmd calibration command
- */
 void DFRobotESPpH::calibration(char *cmd) {
     strupr(cmd);
 
@@ -130,11 +92,6 @@ void DFRobotESPpH::calibration(char *cmd) {
     phCalibration(cmdParse(cmd));
 }
 
-
-/**
- * @brief tries to search a remote command and calibrates the pH sensor if found
- * 
- */
 void DFRobotESPpH::calibration() {
     if (cmdSerialDataAvailable() > 0)
     {
@@ -163,10 +120,8 @@ void DFRobotESPpH::calibration() {
       }
     }
 }
-/**
- * @brief manual calibration function
- * 
- */
+
+
 void DFRobotESPpH::manualCalibration() {
   
   if(cmdSerialDataAvailable() > 0){
@@ -174,11 +129,6 @@ void DFRobotESPpH::manualCalibration() {
   }
 }
 
-/**
- * @brief checks to see whether serial data is/is not available
- * 
- * @return boolean True if data is available, False otherwise
- */
 boolean DFRobotESPpH::cmdSerialDataAvailable()
 {
     char cmdReceivedChar;
@@ -207,12 +157,6 @@ boolean DFRobotESPpH::cmdSerialDataAvailable()
     return false;
 }
 
-/**
- * @brief parses a remote command
- * 
- * @param cmd input command
- * @return byte index mode
- */
 byte DFRobotESPpH::cmdParse(const char *cmd) {
     byte modeIndex = 0;
     if (strstr(cmd, "ENTERPH") != NULL)
@@ -230,11 +174,6 @@ byte DFRobotESPpH::cmdParse(const char *cmd) {
     return modeIndex;
 }
 
-/**
- * @brief recieves a command and parses it
- * 
- * @return byte index mode
- */
 byte DFRobotESPpH::cmdParse() {
     byte modeIndex = 0;
     if (strstr(this->_cmdReceivedBuffer, "ENTERPH") != NULL)
@@ -252,11 +191,6 @@ byte DFRobotESPpH::cmdParse() {
     return modeIndex;
 }
 
-/**
- * @brief Calibrates pH sensor based on provided mode
- * 
- * @param mode the mode from cmdparse
- */
 void DFRobotESPpH::phCalibration(byte mode) {
     char *receivedBufferPtr;
     static boolean phCalibrationFinish = 0;
@@ -345,12 +279,6 @@ void DFRobotESPpH::phCalibration(byte mode) {
     }
 }
 
-/**
- * @brief Manually calibrate the pH sensor 
- * 
- * @param voltage7 voltage at pH 7
- * @param voltage4 voltage at pH 4
- */
 void DFRobotESPpH::manualCalibration(float voltage7, float voltage4){
 	preferences.begin("pHVals", false);
 	

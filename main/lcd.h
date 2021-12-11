@@ -31,7 +31,13 @@ class LCD {
 		const int orange = 0xFB46;
 
 		/**
-		 * @brief 
+		 * @brief Helper function for printing text to LCD
+		 *  
+		 * @param text the message to be printed
+		 * @param color the color of the message
+		 * @param x horizontal position of the message
+		 * @param y vertical position of message
+		 * @param textSize the size of the text to be displaced on LCD
 		 */
 		void printText(String text, uint16_t color, int x, int y,int textSize);
 

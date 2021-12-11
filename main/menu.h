@@ -31,7 +31,6 @@ class Menu {
 
 
 		// FUNCTIONS
-
 		/**
 		 * @brief sends start message to the application on user PC, timout after 12 seconds
 		 * 

@@ -6,6 +6,7 @@
 class TempSensor {
   
   private:
+    // needed to read temperature values from probe
     OneWire *ds;
 
   public:
@@ -26,7 +27,7 @@ class TempSensor {
     /**
       * @brief Get the current reading from the temperature sensor
       * 
-      * @return float value of the temperature in Celsius 
+      * @return float value of the temperature in Fahrenheit
       */
     float getTemp();
 };

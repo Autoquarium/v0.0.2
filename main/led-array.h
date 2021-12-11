@@ -40,19 +40,15 @@ class LEDArray {
      * @brief Sets the hue/saturation/value of the lights
      *        Would prefer if this function was not used (does not update currentRGB)
      * 
-     * @param h hue (color range shown in FastLED documentation)
-     *          REQUIRES: 0 <= h <= 255
-     * @param s saturation
-     *          REQUIRES: 0 <= h <= 255
-     * @param v value (brightness)
-     *          REQUIRES: 0 <= h <= 255
+     * @param h hue (color range shown in FastLED documentation) REQUIRES: 0 <= h <= 255
+     * @param s saturation REQUIRES: 0 <= h <= 255
+     * @param v brightness REQUIRES: 0 <= h <= 255
      */
     void setHSVColor(int h, int s, int v);
 
 
     /**
      * @brief Sets the RGB color of the lights
-     *        Note: the strip uses GRB by default but CRGB() handles the conversion
      * 
      * @param r red value intensity REQUIRES: 0 <= r <= 255
      * @param g green value intensity REQUIRES: 0 <= g <= 255
@@ -61,10 +57,8 @@ class LEDArray {
     void setRGBColor(int r, int g, int b);
 
 
-
     /**
      * @brief Sets the RGB color of the lights
-     *        Note: the strip uses GRB by default but CRGB() handles the conversion
      * 
      * @param color is of type CRGB from FastLED
      */
@@ -117,8 +111,7 @@ class LEDArray {
      * @brief Constructs a new LEDArray object
      *        Initializes pins and FastLED variables
      * 
-     * @param numLEDsIn Number of lights of the strip to be turned on
-     *                  REQUIRES: numLEDsIn <= 300
+     * @param numLEDsIn Number of lights of the strip to be turned on REQUIRES: numLEDsIn <= 300
      * @param ledPinIn IO pin that data will be sent across to control the LEDs
      */
     void init(const int ledPinIn, int numLEDsIn);
