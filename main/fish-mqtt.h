@@ -20,7 +20,7 @@ class FishMqtt : public PubSubClient {
 		String device_id = "autoq-prod"; // default device
 
 		// MQTT broker info
-		char *mqttServer =  "e948e5ec3f1b48708ce7748bdabab96e.s1.eu.hivemq.cloud";
+		char *mqttServer =  "e948e5ec3f1b48708ce7748bdabab96e.s1.eu.hivemq.cloud"; // test
 		int mqttPort = 8883;
 
 		// MQTT client credentials
