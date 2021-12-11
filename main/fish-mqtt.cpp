@@ -141,30 +141,6 @@ void FishMqtt::setAlertCreds(String User) {
     user_alrt = User;
 }
 
-void FishMqtt::sendPushAlert(String msg1, String msg2) {
-  
-  HTTPClient http;
-  String url = "https://api.pushover.net/1/messages.json";
-  http.begin(espClient, url);  //Specify destination for HTTP request
-  http.addHeader("Content-Type", "application/x-www-form-urlencoded");
-
-  // post first message
-  if (msg1.length() != 0) {
-    String data_to_send = "token=" + API_key + "&user=" + user_alrt + "&message=" + msg1;
-    http.POST(data_to_send);
-  }
-
-  // post second message
-  if (msg2.length() != 0) {
-    delay(3);
-    String data_to_send = "token=" + API_key + "&user=" + user_alrt + "&message=" + msg2;
-    http.POST(data_to_send);
-  }
-  
-  //Free resources
-  http.end();
-}
-
 void FishMqtt::sendPushAlert(String msg) {
     Serial.println("sending notifiction");
     try {
