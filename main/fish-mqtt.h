@@ -138,7 +138,6 @@ class FishMqtt : public PubSubClient {
 		void setAlertCreds(String User);
 
 
-		// "https://api.pushover.net/1/messages.json?token=akiafy9jms26ojnx53bw5vvivj1s4v&user=uaeiijpxfayt5grxg85w97wkeu7gxq&message=testing";
 		/**
 		 * @brief Sends a notification to user
 		 * 
