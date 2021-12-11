@@ -17,16 +17,16 @@ class FishMqtt : public PubSubClient {
 
 
 		// device info
-		String device_id = "autoq-prod"; // default device
+		String device_id = "xxx"; // default device
 
 		// MQTT broker info
-		char *mqttServer =  "e948e5ec3f1b48708ce7748bdabab96e.s1.eu.hivemq.cloud"; // test
+		char *mqttServer =  "xxx.hivemq.cloud"; // test
 		int mqttPort = 8883;
 
 		// MQTT client credentials
-		char *clientName = "FishClient-666";
-		char *usrname = "fishusr";
-		char *password = "Fish123!";
+		char *clientName = "xxx";
+		char *usrname = "xxx";
+		char *password = "xxx";
 
 		// WiFi credentials
 		char wifi_SSID[40];
@@ -35,7 +35,7 @@ class FishMqtt : public PubSubClient {
 		// Alert credentials
 		HTTPClient http;
 		String user_alrt;
-		String API_key = "akiafy9jms26ojnx53bw5vvivj1s4v";
+		String API_key = "xxx";
 		
 		// WiFi client for esp32 chip
 		WiFiClientSecure espClient;

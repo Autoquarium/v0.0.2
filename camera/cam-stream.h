@@ -26,7 +26,7 @@ class CamStream {
         const int PCLK_GPIO_NUM = 22;
 
 
-        // Rachel's hotspot: "Verizon-SM-G930V-A5BE" "mtpg344#"
+        // wifi Credentials
         char* ssid;
         char* password;
 
@@ -55,7 +55,7 @@ class CamStream {
          * @param ssid the name of the user's local Wi-Fi network
          * @param password the password of the user's local Wi-Fi network
          */
-        void configCamera(const char* ssid = "Verizon-SM-G930V-A5BE", const char* password = "mtpg344#");
+        void configCamera(const char* ssid = "default_wifi", const char* password = "default_password");
 
 
         /**
